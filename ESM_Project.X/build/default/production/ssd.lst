@@ -1,0 +1,459 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _ssdDigit
+  0000                00015         global  _ssdUpdate
+  0000                00016         global  _ssdInit
+                      00017 
+                      00018 ;--------------------------------------------------------
+                      00019 ;       Equates to used internal registers
+                      00020 ;--------------------------------------------------------
+  00000FD8            00021 STATUS  equ     0xfd8
+  00000FF9            00022 PCL     equ     0xff9
+  00000FFA            00023 PCLATH  equ     0xffa
+  00000FFB            00024 PCLATU  equ     0xffb
+  00000FE8            00025 WREG    equ     0xfe8
+  00000FF6            00026 TBLPTRL equ     0xff6
+  00000FF7            00027 TBLPTRH equ     0xff7
+  00000FF8            00028 TBLPTRU equ     0xff8
+  00000FF5            00029 TABLAT  equ     0xff5
+  00000FE1            00030 FSR1L   equ     0xfe1
+  00000FD9            00031 FSR2L   equ     0xfd9
+  00000FEF            00032 INDF0   equ     0xfef
+  00000FE5            00033 POSTDEC1        equ     0xfe5
+  00000FE4            00034 PREINC1 equ     0xfe4
+  00000FDB            00035 PLUSW2  equ     0xfdb
+                      00036 
+                      00037 
+                      00038 ; Internal registers
+                      00039 .registers      udata_ovr       0x0000
+000000                00040 r0x00   res     1
+000001                00041 r0x01   res     1
+000002                00042 r0x02   res     1
+                      00043 
+                      00044 udata_ssd_0     udata
+000000                00045 _display        res     1
+                      00046 
+                      00047 udata_ssd_1     udata
+000000                00048 _v0     res     1
+                      00049 
+                      00050 udata_ssd_2     udata
+000000                00051 _v1     res     1
+                      00052 
+                      00053 udata_ssd_3     udata
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000000                00054 _v2     res     1
+                      00055 
+                      00056 udata_ssd_4     udata
+000000                00057 _v3     res     1
+                      00058 
+                      00059 ;--------------------------------------------------------
+                      00060 ; global & static initialisations
+                      00061 ;--------------------------------------------------------
+                      00062 ; I code from now on!
+                      00063 ; ; Starting pCode block
+                      00064 S_ssd__ssdInit  code
+000000                00065 _ssdInit:
+                      00066 ;       .line   85; ssd.c       void ssdInit(void) {
+000000 CFD9 FFE5      00067         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00068         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00069         MOVFF   r0x00, POSTDEC1
+                      00070 ;       .line   87; ssd.c       BitClr(TRISA, 2);
+00000C EE0F F092      00071         LFSR    0x00, 0xf92
+000010 CFEF F000      00072         MOVFF   INDF0, r0x00
+000014 94??           00073         BCF     r0x00, 2
+000016 EE0F F092      00074         LFSR    0x00, 0xf92
+00001A C??? F???      00075         MOVFF   r0x00, INDF0
+                      00076 ;       .line   88; ssd.c       BitClr(TRISA, 5);
+00001E EE0F F092      00077         LFSR    0x00, 0xf92
+000022 CFEF F000      00078         MOVFF   INDF0, r0x00
+000026 9A??           00079         BCF     r0x00, 5
+000028 EE0F F092      00080         LFSR    0x00, 0xf92
+00002C C??? F???      00081         MOVFF   r0x00, INDF0
+                      00082 ;       .line   89; ssd.c       BitClr(TRISE, 0);
+000030 EE0F F096      00083         LFSR    0x00, 0xf96
+000034 CFEF F000      00084         MOVFF   INDF0, r0x00
+000038 90??           00085         BCF     r0x00, 0
+00003A EE0F F096      00086         LFSR    0x00, 0xf96
+00003E C??? F???      00087         MOVFF   r0x00, INDF0
+                      00088 ;       .line   90; ssd.c       BitClr(TRISE, 2);
+000042 EE0F F096      00089         LFSR    0x00, 0xf96
+000046 CFEF F000      00090         MOVFF   INDF0, r0x00
+00004A 94??           00091         BCF     r0x00, 2
+00004C EE0F F096      00092         LFSR    0x00, 0xf96
+000050 C??? F???      00093         MOVFF   r0x00, INDF0
+                      00094 ;       .line   91; ssd.c       ADCON1 = 0x0E; //apenas AN0 é analogico, a referencia é baseada na fonte
+000054 EE0F F0C1      00095         LFSR    0x00, 0xfc1
+000058 0E0E           00096         MOVLW   0x0e
+00005A 6EEF           00097         MOVWF   INDF0
+                      00098 ;       .line   92; ssd.c       TRISD = 0x00; //Porta de dados
+00005C EE0F F095      00099         LFSR    0x00, 0xf95
+000060 0E00           00100         MOVLW   0x00
+000062 6EEF           00101         MOVWF   INDF0
+000064 CFE4 F000      00102         MOVFF   PREINC1, r0x00
+000068 CFE4 FFD9      00103         MOVFF   PREINC1, FSR2L
+00006C 0012           00104         RETURN  
+                      00105 
+                      00106 ; ; Starting pCode block
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00107 S_ssd__ssdUpdate        code
+000000                00108 _ssdUpdate:
+                      00109 ;       .line   47; ssd.c       void ssdUpdate(void) {
+000000 CFD9 FFE5      00110         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00111         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00112         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00113         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00114         MOVFF   r0x02, POSTDEC1
+                      00115 ;       .line   49; ssd.c       PORTA = 0x00;
+000014 EE0F F080      00116         LFSR    0x00, 0xf80
+000018 0E00           00117         MOVLW   0x00
+00001A 6EEF           00118         MOVWF   INDF0
+                      00119 ;       .line   50; ssd.c       PORTE = 0x00;
+00001C EE0F F084      00120         LFSR    0x00, 0xf84
+000020 0E00           00121         MOVLW   0x00
+000022 6EEF           00122         MOVWF   INDF0
+                      00123 ;       .line   52; ssd.c       PORTD = 0x00;
+000024 EE0F F083      00124         LFSR    0x00, 0xf83
+000028 0E00           00125         MOVLW   0x00
+00002A 6EEF           00126         MOVWF   INDF0
+                      00127 ;       .line   54; ssd.c       switch (display){ //liga apenas o display da vez
+00002C 0E04           00128         MOVLW   0x04
+00002E ????           00129         BANKSEL _display
+000030 5D??           00130         SUBWF   _display, W, B
+000032 B0D8           00131         BTFSC   STATUS, 0
+000034 D???           00132         BRA     _00141_DS_
+000036 6AFA           00133         CLRF    PCLATH
+000038 6AFB           00134         CLRF    PCLATU
+00003A ????           00135         BANKSEL _display
+00003C 35??           00136         RLCF    _display, W, B
+00003E 36FA           00137         RLCF    PCLATH, F
+000040 34E8           00138         RLCF    WREG, W
+000042 36FA           00139         RLCF    PCLATH, F
+000044 0BFC           00140         ANDLW   0xfc
+000046 0F??           00141         ADDLW   LOW(_00149_DS_)
+000048 6EE5           00142         MOVWF   POSTDEC1
+00004A 0E??           00143         MOVLW   HIGH(_00149_DS_)
+00004C 22FA           00144         ADDWFC  PCLATH, F
+00004E 0E??           00145         MOVLW   UPPER(_00149_DS_)
+000050 22FB           00146         ADDWFC  PCLATU, F
+000052 50E4           00147         MOVF    PREINC1, W
+000054 6EF9           00148         MOVWF   PCL
+000056                00149 _00149_DS_:
+000056 EF?? F0??      00150         GOTO    _00137_DS_
+00005A EF?? F0??      00151         GOTO    _00138_DS_
+00005E EF?? F0??      00152         GOTO    _00139_DS_
+000062 EF?? F0??      00153         GOTO    _00140_DS_
+000066                00154 _00137_DS_:
+                      00155 ;       .line   56; ssd.c       PORTD = valor[v0];
+000066 0E??           00156         MOVLW   LOW(_valor)
+000068 ????           00157         BANKSEL _v0
+00006A 25??           00158         ADDWF   _v0, W, B
+00006C 6E??           00159         MOVWF   r0x00
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00006E 6A??           00160         CLRF    r0x01
+000070 0E??           00161         MOVLW   HIGH(_valor)
+000072 22??           00162         ADDWFC  r0x01, F
+000074 6A??           00163         CLRF    r0x02
+000076 0E??           00164         MOVLW   UPPER(_valor)
+000078 22??           00165         ADDWFC  r0x02, F
+00007A C??? F???      00166         MOVFF   r0x00, TBLPTRL
+00007E C??? F???      00167         MOVFF   r0x01, TBLPTRH
+000082 C??? F???      00168         MOVFF   r0x02, TBLPTRU
+000086 0009           00169         TBLRD*+ 
+000088 CFF5 F000      00170         MOVFF   TABLAT, r0x00
+00008C EE0F F083      00171         LFSR    0x00, 0xf83
+000090 C??? F???      00172         MOVFF   r0x00, INDF0
+                      00173 ;       .line   57; ssd.c       BitSet(PORTA, 5);
+000094 EE0F F080      00174         LFSR    0x00, 0xf80
+000098 CFEF F000      00175         MOVFF   INDF0, r0x00
+00009C 8A??           00176         BSF     r0x00, 5
+00009E EE0F F080      00177         LFSR    0x00, 0xf80
+0000A2 C??? F???      00178         MOVFF   r0x00, INDF0
+                      00179 ;       .line   58; ssd.c       display = 1;
+0000A6 0E01           00180         MOVLW   0x01
+0000A8 ????           00181         BANKSEL _display
+0000AA 6F??           00182         MOVWF   _display, B
+                      00183 ;       .line   59; ssd.c       break;
+0000AC D???           00184         BRA     _00143_DS_
+0000AE                00185 _00138_DS_:
+                      00186 ;       .line   62; ssd.c       PORTD = valor[v1];
+0000AE 0E??           00187         MOVLW   LOW(_valor)
+0000B0 ????           00188         BANKSEL _v1
+0000B2 25??           00189         ADDWF   _v1, W, B
+0000B4 6E??           00190         MOVWF   r0x00
+0000B6 6A??           00191         CLRF    r0x01
+0000B8 0E??           00192         MOVLW   HIGH(_valor)
+0000BA 22??           00193         ADDWFC  r0x01, F
+0000BC 6A??           00194         CLRF    r0x02
+0000BE 0E??           00195         MOVLW   UPPER(_valor)
+0000C0 22??           00196         ADDWFC  r0x02, F
+0000C2 C??? F???      00197         MOVFF   r0x00, TBLPTRL
+0000C6 C??? F???      00198         MOVFF   r0x01, TBLPTRH
+0000CA C??? F???      00199         MOVFF   r0x02, TBLPTRU
+0000CE 0009           00200         TBLRD*+ 
+0000D0 CFF5 F000      00201         MOVFF   TABLAT, r0x00
+0000D4 EE0F F083      00202         LFSR    0x00, 0xf83
+0000D8 C??? F???      00203         MOVFF   r0x00, INDF0
+                      00204 ;       .line   63; ssd.c       BitSet(PORTA, 2);
+0000DC EE0F F080      00205         LFSR    0x00, 0xf80
+0000E0 CFEF F000      00206         MOVFF   INDF0, r0x00
+0000E4 84??           00207         BSF     r0x00, 2
+0000E6 EE0F F080      00208         LFSR    0x00, 0xf80
+0000EA C??? F???      00209         MOVFF   r0x00, INDF0
+                      00210 ;       .line   64; ssd.c       display = 2;
+0000EE 0E02           00211         MOVLW   0x02
+0000F0 ????           00212         BANKSEL _display
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  5
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000F2 6F??           00213         MOVWF   _display, B
+                      00214 ;       .line   65; ssd.c       break;
+0000F4 D???           00215         BRA     _00143_DS_
+0000F6                00216 _00139_DS_:
+                      00217 ;       .line   68; ssd.c       PORTD = valor[v2];
+0000F6 0E??           00218         MOVLW   LOW(_valor)
+0000F8 ????           00219         BANKSEL _v2
+0000FA 25??           00220         ADDWF   _v2, W, B
+0000FC 6E??           00221         MOVWF   r0x00
+0000FE 6A??           00222         CLRF    r0x01
+000100 0E??           00223         MOVLW   HIGH(_valor)
+000102 22??           00224         ADDWFC  r0x01, F
+000104 6A??           00225         CLRF    r0x02
+000106 0E??           00226         MOVLW   UPPER(_valor)
+000108 22??           00227         ADDWFC  r0x02, F
+00010A C??? F???      00228         MOVFF   r0x00, TBLPTRL
+00010E C??? F???      00229         MOVFF   r0x01, TBLPTRH
+000112 C??? F???      00230         MOVFF   r0x02, TBLPTRU
+000116 0009           00231         TBLRD*+ 
+000118 CFF5 F000      00232         MOVFF   TABLAT, r0x00
+00011C EE0F F083      00233         LFSR    0x00, 0xf83
+000120 C??? F???      00234         MOVFF   r0x00, INDF0
+                      00235 ;       .line   69; ssd.c       BitSet(PORTE, 0);
+000124 EE0F F084      00236         LFSR    0x00, 0xf84
+000128 CFEF F000      00237         MOVFF   INDF0, r0x00
+00012C 80??           00238         BSF     r0x00, 0
+00012E EE0F F084      00239         LFSR    0x00, 0xf84
+000132 C??? F???      00240         MOVFF   r0x00, INDF0
+                      00241 ;       .line   70; ssd.c       display = 3;
+000136 0E03           00242         MOVLW   0x03
+000138 ????           00243         BANKSEL _display
+00013A 6F??           00244         MOVWF   _display, B
+                      00245 ;       .line   71; ssd.c       break;
+00013C D???           00246         BRA     _00143_DS_
+00013E                00247 _00140_DS_:
+                      00248 ;       .line   74; ssd.c       PORTD = valor[v3];
+00013E 0E??           00249         MOVLW   LOW(_valor)
+000140 ????           00250         BANKSEL _v3
+000142 25??           00251         ADDWF   _v3, W, B
+000144 6E??           00252         MOVWF   r0x00
+000146 6A??           00253         CLRF    r0x01
+000148 0E??           00254         MOVLW   HIGH(_valor)
+00014A 22??           00255         ADDWFC  r0x01, F
+00014C 6A??           00256         CLRF    r0x02
+00014E 0E??           00257         MOVLW   UPPER(_valor)
+000150 22??           00258         ADDWFC  r0x02, F
+000152 C??? F???      00259         MOVFF   r0x00, TBLPTRL
+000156 C??? F???      00260         MOVFF   r0x01, TBLPTRH
+00015A C??? F???      00261         MOVFF   r0x02, TBLPTRU
+00015E 0009           00262         TBLRD*+ 
+000160 CFF5 F000      00263         MOVFF   TABLAT, r0x00
+000164 EE0F F083      00264         LFSR    0x00, 0xf83
+000168 C??? F???      00265         MOVFF   r0x00, INDF0
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  6
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00266 ;       .line   75; ssd.c       BitSet(PORTE, 2);
+00016C EE0F F084      00267         LFSR    0x00, 0xf84
+000170 CFEF F000      00268         MOVFF   INDF0, r0x00
+000174 84??           00269         BSF     r0x00, 2
+000176 EE0F F084      00270         LFSR    0x00, 0xf84
+00017A C??? F???      00271         MOVFF   r0x00, INDF0
+00017E ????           00272         BANKSEL _display
+                      00273 ;       .line   76; ssd.c       display = 0;
+000180 6B??           00274         CLRF    _display, B
+                      00275 ;       .line   77; ssd.c       break;
+000182 D???           00276         BRA     _00143_DS_
+000184                00277 _00141_DS_:
+000184 ????           00278         BANKSEL _display
+                      00279 ;       .line   80; ssd.c       display = 0;
+000186 6B??           00280         CLRF    _display, B
+000188                00281 _00143_DS_:
+                      00282 ;       .line   82; ssd.c       }
+000188 CFE4 F000      00283         MOVFF   PREINC1, r0x02
+00018C CFE4 F000      00284         MOVFF   PREINC1, r0x01
+000190 CFE4 F000      00285         MOVFF   PREINC1, r0x00
+000194 CFE4 FFD9      00286         MOVFF   PREINC1, FSR2L
+000198 0012           00287         RETURN  
+                      00288 
+                      00289 ; ; Starting pCode block
+                      00290 S_ssd__ssdDigit code
+000000                00291 _ssdDigit:
+                      00292 ;       .line   31; ssd.c       void ssdDigit(char val, char pos) {
+000000 CFD9 FFE5      00293         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00294         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00295         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00296         MOVFF   r0x01, POSTDEC1
+000010 0E02           00297         MOVLW   0x02
+000012 CFDB F000      00298         MOVFF   PLUSW2, r0x00
+000016 0E03           00299         MOVLW   0x03
+000018 CFDB F000      00300         MOVFF   PLUSW2, r0x01
+                      00301 ;       .line   32; ssd.c       if (pos == 0) {
+00001C 50??           00302         MOVF    r0x01, W
+00001E E1??           00303         BNZ     _00106_DS_
+                      00304 ;       .line   33; ssd.c       v0 = val;
+000020 C??? F???      00305         MOVFF   r0x00, _v0
+000024                00306 _00106_DS_:
+                      00307 ;       .line   35; ssd.c       if (pos == 1) {
+000024 50??           00308         MOVF    r0x01, W
+000026 0A01           00309         XORLW   0x01
+000028 E1??           00310         BNZ     _00108_DS_
+                      00311 ;       .line   36; ssd.c       v1 = val;
+00002A C??? F???      00312         MOVFF   r0x00, _v1
+00002E                00313 _00108_DS_:
+                      00314 ;       .line   38; ssd.c       if (pos == 2) {
+00002E 50??           00315         MOVF    r0x01, W
+000030 0A02           00316         XORLW   0x02
+000032 E1??           00317         BNZ     _00110_DS_
+                      00318 ;       .line   39; ssd.c       v2 = val;
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  7
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000034 C??? F???      00319         MOVFF   r0x00, _v2
+000038                00320 _00110_DS_:
+                      00321 ;       .line   41; ssd.c       if (pos == 3) {
+000038 50??           00322         MOVF    r0x01, W
+00003A 0A03           00323         XORLW   0x03
+00003C E1??           00324         BNZ     _00113_DS_
+                      00325 ;       .line   42; ssd.c       v3 = val;
+00003E C??? F???      00326         MOVFF   r0x00, _v3
+000042                00327 _00113_DS_:
+000042 CFE4 F000      00328         MOVFF   PREINC1, r0x01
+000046 CFE4 F000      00329         MOVFF   PREINC1, r0x00
+00004A CFE4 FFD9      00330         MOVFF   PREINC1, FSR2L
+00004E 0012           00331         RETURN  
+                      00332 
+                      00333 ; ; Starting pCode block for Ival
+                      00334         code
+000000                00335 _valor:
+000000 063F 4F5B 6D66 00336         DB      0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f, 0x77, 0x7c
+       077D 6F7F 7C77 
+00000C 5E39 7179      00337         DB      0x39, 0x5e, 0x79, 0x71
+                      00338 
+                      00339 
+                      00340 ; Statistics:
+                      00341 ; code size:      606 (0x025e) bytes ( 0.46%)
+                      00342 ;                 303 (0x012f) words
+                      00343 ; udata size:       5 (0x0005) bytes ( 0.39%)
+                      00344 ; access size:      3 (0x0003) bytes
+                      00345 
+                      00346 
+                      00347         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+STATUS                            00000FD8
+TABLAT                            00000FF5
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+WREG                              00000FE8
+_00106_DS_                        00000024
+_00108_DS_                        0000002E
+_00110_DS_                        00000038
+_00113_DS_                        00000042
+_00137_DS_                        00000066
+_00138_DS_                        000000AE
+_00139_DS_                        000000F6
+_00140_DS_                        0000013E
+_00141_DS_                        00000184
+_00143_DS_                        00000188
+_00149_DS_                        00000056
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+_display                          00000000
+_ssdDigit                         00000000
+_ssdInit                          00000000
+_ssdUpdate                        00000000
+_v0                               00000000
+_v1                               00000000
+_v2                               00000000
+_v3                               00000000
+_valor                            00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  9
+
+
+
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

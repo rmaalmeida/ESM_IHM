@@ -1,0 +1,225 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _serialSend
+  0000                00015         global  _serialRead
+  0000                00016         global  _serialInit
+                      00017 
+                      00018 ;--------------------------------------------------------
+                      00019 ;       Equates to used internal registers
+                      00020 ;--------------------------------------------------------
+  00000FE8            00021 WREG    equ     0xfe8
+  00000FE1            00022 FSR1L   equ     0xfe1
+  00000FD9            00023 FSR2L   equ     0xfd9
+  00000FEF            00024 INDF0   equ     0xfef
+  00000FE5            00025 POSTDEC1        equ     0xfe5
+  00000FE4            00026 PREINC1 equ     0xfe4
+  00000FDB            00027 PLUSW2  equ     0xfdb
+                      00028 
+                      00029 
+                      00030 ; Internal registers
+                      00031 .registers      udata_ovr       0x0000
+000000                00032 r0x00   res     1
+000001                00033 r0x01   res     1
+                      00034 
+                      00035 ;--------------------------------------------------------
+                      00036 ; global & static initialisations
+                      00037 ;--------------------------------------------------------
+                      00038 ; I code from now on!
+                      00039 ; ; Starting pCode block
+                      00040 S_serial__serialInit    code
+000000                00041 _serialInit:
+                      00042 ;       .line   41; serial.c    void serialInit(void) {
+000000 CFD9 FFE5      00043         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00044         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00045         MOVFF   r0x00, POSTDEC1
+                      00046 ;       .line   42; serial.c    TXSTA = 0b00101100; //configura a transmissão de dados da serial
+00000C EE0F F0AC      00047         LFSR    0x00, 0xfac
+000010 0E2C           00048         MOVLW   0x2c
+000012 6EEF           00049         MOVWF   INDF0
+                      00050 ;       .line   43; serial.c    RCSTA = 0b10010000; //configura a recepção de dados da serial
+000014 EE0F F0AB      00051         LFSR    0x00, 0xfab
+000018 0E90           00052         MOVLW   0x90
+00001A 6EEF           00053         MOVWF   INDF0
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00054 ;       .line   44; serial.c    BAUDCON = 0b00001000; //configura sistema de velocidade da serial
+00001C EE0F F0B8      00055         LFSR    0x00, 0xfb8
+000020 0E08           00056         MOVLW   0x08
+000022 6EEF           00057         MOVWF   INDF0
+                      00058 ;       .line   45; serial.c    SPBRGH = 0; //configura para 57.6k
+000024 EE0F F0B0      00059         LFSR    0x00, 0xfb0
+000028 0E00           00060         MOVLW   0x00
+00002A 6EEF           00061         MOVWF   INDF0
+                      00062 ;       .line   46; serial.c    SPBRG = 34; //configura para 57.6k
+00002C EE0F F0AF      00063         LFSR    0x00, 0xfaf
+000030 0E22           00064         MOVLW   0x22
+000032 6EEF           00065         MOVWF   INDF0
+                      00066 ;       .line   47; serial.c    BitSet(TRISC, 6); //pino de recepção de dados
+000034 EE0F F094      00067         LFSR    0x00, 0xf94
+000038 CFEF F000      00068         MOVFF   INDF0, r0x00
+00003C 8C??           00069         BSF     r0x00, 6
+00003E EE0F F094      00070         LFSR    0x00, 0xf94
+000042 C??? F???      00071         MOVFF   r0x00, INDF0
+                      00072 ;       .line   48; serial.c    BitSet(TRISC, 7); //pino de envio de dados
+000046 EE0F F094      00073         LFSR    0x00, 0xf94
+00004A CFEF F000      00074         MOVFF   INDF0, r0x00
+00004E 8E??           00075         BSF     r0x00, 7
+000050 EE0F F094      00076         LFSR    0x00, 0xf94
+000054 C??? F???      00077         MOVFF   r0x00, INDF0
+000058 CFE4 F000      00078         MOVFF   PREINC1, r0x00
+00005C CFE4 FFD9      00079         MOVFF   PREINC1, FSR2L
+000060 0012           00080         RETURN  
+                      00081 
+                      00082 ; ; Starting pCode block
+                      00083 S_serial__serialRead    code
+000000                00084 _serialRead:
+                      00085 ;       .line   28; serial.c    unsigned char serialRead(void) {
+000000 CFD9 FFE5      00086         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00087         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00088         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00089         MOVFF   r0x01, POSTDEC1
+                      00090 ;       .line   29; serial.c    unsigned char resp = 0;
+000010 6A??           00091         CLRF    r0x00
+                      00092 ;       .line   31; serial.c    if (BitTst(RCSTA, 1)) { //Verifica se há erro de overrun e reseta a seri
+                            al
+000012 EE0F F0AB      00093         LFSR    0x00, 0xfab
+000016 CFEF F000      00094         MOVFF   INDF0, r0x01
+00001A A2??           00095         BTFSS   r0x01, 1
+00001C D???           00096         BRA     _00122_DS_
+                      00097 ;       .line   32; serial.c    BitClr(RCSTA, 4);
+00001E EE0F F0AB      00098         LFSR    0x00, 0xfab
+000022 CFEF F000      00099         MOVFF   INDF0, r0x01
+000026 98??           00100         BCF     r0x01, 4
+000028 EE0F F0AB      00101         LFSR    0x00, 0xfab
+00002C C??? F???      00102         MOVFF   r0x01, INDF0
+                      00103 ;       .line   33; serial.c    BitSet(RCSTA, 4);
+000030 EE0F F0AB      00104         LFSR    0x00, 0xfab
+000034 CFEF F000      00105         MOVFF   INDF0, r0x01
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000038 88??           00106         BSF     r0x01, 4
+00003A EE0F F0AB      00107         LFSR    0x00, 0xfab
+00003E C??? F???      00108         MOVFF   r0x01, INDF0
+000042                00109 _00122_DS_:
+                      00110 ;       .line   35; serial.c    if (BitTst(PIR1, 5)) { //Verifica se existe algum valor disponivel
+000042 EE0F F09E      00111         LFSR    0x00, 0xf9e
+000046 CFEF F000      00112         MOVFF   INDF0, r0x01
+00004A AA??           00113         BTFSS   r0x01, 5
+00004C D???           00114         BRA     _00124_DS_
+                      00115 ;       .line   36; serial.c    resp = RCREG; //retorna o valor
+00004E EE0F F0AE      00116         LFSR    0x00, 0xfae
+000052 CFEF F000      00117         MOVFF   INDF0, r0x00
+000056                00118 _00124_DS_:
+                      00119 ;       .line   38; serial.c    return resp; //retorna zero
+000056 50??           00120         MOVF    r0x00, W
+000058 CFE4 F000      00121         MOVFF   PREINC1, r0x01
+00005C CFE4 F000      00122         MOVFF   PREINC1, r0x00
+000060 CFE4 FFD9      00123         MOVFF   PREINC1, FSR2L
+000064 0012           00124         RETURN  
+                      00125 
+                      00126 ; ; Starting pCode block
+                      00127 S_serial__serialSend    code
+000000                00128 _serialSend:
+                      00129 ;       .line   23; serial.c    void serialSend(unsigned char c) {
+000000 CFD9 FFE5      00130         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00131         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00132         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00133         MOVFF   r0x01, POSTDEC1
+000010 0E02           00134         MOVLW   0x02
+000012 CFDB F000      00135         MOVFF   PLUSW2, r0x00
+000016                00136 _00105_DS_:
+                      00137 ;       .line   24; serial.c    while (!BitTst(PIR1, 4)); //aguarda o registro ficar disponível
+000016 EE0F F09E      00138         LFSR    0x00, 0xf9e
+00001A CFEF F000      00139         MOVFF   INDF0, r0x01
+00001E A8??           00140         BTFSS   r0x01, 4
+000020 D???           00141         BRA     _00105_DS_
+                      00142 ;       .line   25; serial.c    TXREG = c; //coloca o valor para ser enviado
+000022 EE0F F0AD      00143         LFSR    0x00, 0xfad
+000026 C??? F???      00144         MOVFF   r0x00, INDF0
+00002A CFE4 F000      00145         MOVFF   PREINC1, r0x01
+00002E CFE4 F000      00146         MOVFF   PREINC1, r0x00
+000032 CFE4 FFD9      00147         MOVFF   PREINC1, FSR2L
+000036 0012           00148         RETURN  
+                      00149 
+                      00150 
+                      00151 
+                      00152 ; Statistics:
+                      00153 ; code size:      256 (0x0100) bytes ( 0.20%)
+                      00154 ;                 128 (0x0080) words
+                      00155 ; udata size:       0 (0x0000) bytes ( 0.00%)
+                      00156 ; access size:      2 (0x0002) bytes
+                      00157 
+                      00158 
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00159         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  5
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+WREG                              00000FE8
+_00105_DS_                        00000016
+_00122_DS_                        00000042
+_00124_DS_                        00000056
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+_serialInit                       00000000
+_serialRead                       00000000
+_serialSend                       00000000
+r0x00                             00000000
+r0x01                             00000001
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

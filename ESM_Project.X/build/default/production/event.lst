@@ -1,0 +1,213 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _eventInit
+  0000                00015         global  _eventRead
+                      00016 
+                      00017 ;--------------------------------------------------------
+                      00018 ; extern variables in this module
+                      00019 ;--------------------------------------------------------
+  0000                00020         extern  _kpRead
+  0000                00021         extern  _kpInit
+                      00022 
+                      00023 ;--------------------------------------------------------
+                      00024 ;       Equates to used internal registers
+                      00025 ;--------------------------------------------------------
+  00000FE8            00026 WREG    equ     0xfe8
+  00000FE1            00027 FSR1L   equ     0xfe1
+  00000FD9            00028 FSR2L   equ     0xfd9
+  00000FE5            00029 POSTDEC1        equ     0xfe5
+  00000FE4            00030 PREINC1 equ     0xfe4
+  00000FF3            00031 PRODL   equ     0xff3
+                      00032 
+                      00033 
+                      00034 ; Internal registers
+                      00035 .registers      udata_ovr       0x0000
+000000                00036 r0x00   res     1
+000001                00037 r0x01   res     1
+000002                00038 r0x02   res     1
+000003                00039 r0x03   res     1
+000004                00040 r0x04   res     1
+000005                00041 r0x05   res     1
+                      00042 
+                      00043 udata_event_0   udata
+000000                00044 _key_ant        res     2
+                      00045 
+                      00046 ;--------------------------------------------------------
+                      00047 ; global & static initialisations
+                      00048 ;--------------------------------------------------------
+                      00049 ; I code from now on!
+                      00050 ; ; Starting pCode block
+                      00051 S_event__eventRead      code
+000000                00052 _eventRead:
+                      00053 ;       .line   12; event.c     unsigned int eventRead(void) {
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000000 CFD9 FFE5      00054         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00055         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00056         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00057         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00058         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00059         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00060         MOVFF   r0x04, POSTDEC1
+00001C C??? F???      00061         MOVFF   r0x05, POSTDEC1
+                      00062 ;       .line   14; event.c     int ev = EV_NOEVENT;
+000020 0E05           00063         MOVLW   0x05
+000022 6E??           00064         MOVWF   r0x00
+000024 6A??           00065         CLRF    r0x01
+                      00066 ;       .line   15; event.c     key = kpRead();
+000026 EC?? F0??      00067         CALL    _kpRead
+00002A 6E??           00068         MOVWF   r0x02
+00002C 6A??           00069         CLRF    r0x03
+                      00070 ;       .line   16; event.c     if (key != key_ant) {
+00002E 50??           00071         MOVF    r0x02, W
+000030 6E??           00072         MOVWF   r0x04
+000032 50??           00073         MOVF    r0x03, W
+000034 6E??           00074         MOVWF   r0x05
+000036 50??           00075         MOVF    r0x04, W
+000038 ????           00076         BANKSEL _key_ant
+00003A 19??           00077         XORWF   _key_ant, W, B
+00003C E1??           00078         BNZ     _00133_DS_
+00003E 50??           00079         MOVF    r0x05, W
+000040 ????           00080         BANKSEL (_key_ant + 1)
+000042 19??           00081         XORWF   (_key_ant + 1), W, B
+000044 E0??           00082         BZ      _00117_DS_
+000046                00083 _00133_DS_:
+                      00084 ;       .line   17; event.c     if (BitTst(key, 0)) {
+000046 A0??           00085         BTFSS   r0x02, 0
+000048 D???           00086         BRA     _00111_DS_
+                      00087 ;       .line   18; event.c     ev = EV_RIGHT;
+00004A 0E03           00088         MOVLW   0x03
+00004C 6E??           00089         MOVWF   r0x00
+00004E 6A??           00090         CLRF    r0x01
+000050                00091 _00111_DS_:
+                      00092 ;       .line   21; event.c     if (BitTst(key, 1)) {
+000050 A2??           00093         BTFSS   r0x02, 1
+000052 D???           00094         BRA     _00113_DS_
+                      00095 ;       .line   22; event.c     ev = EV_LEFT;
+000054 0E02           00096         MOVLW   0x02
+000056 6E??           00097         MOVWF   r0x00
+000058 6A??           00098         CLRF    r0x01
+00005A                00099 _00113_DS_:
+                      00100 ;       .line   25; event.c     if (BitTst(key, 2)) {
+00005A A4??           00101         BTFSS   r0x02, 2
+00005C D???           00102         BRA     _00117_DS_
+                      00103 ;       .line   26; event.c     ev = EV_ENTER;
+00005E 0E04           00104         MOVLW   0x04
+000060 6E??           00105         MOVWF   r0x00
+000062 6A??           00106         CLRF    r0x01
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000064                00107 _00117_DS_:
+                      00108 ;       .line   30; event.c     key_ant = key;
+000064 C??? F???      00109         MOVFF   r0x02, _key_ant
+000068 C??? F???      00110         MOVFF   r0x03, (_key_ant + 1)
+                      00111 ;       .line   31; event.c     return ev;
+00006C C??? F???      00112         MOVFF   r0x01, PRODL
+000070 50??           00113         MOVF    r0x00, W
+000072 CFE4 F000      00114         MOVFF   PREINC1, r0x05
+000076 CFE4 F000      00115         MOVFF   PREINC1, r0x04
+00007A CFE4 F000      00116         MOVFF   PREINC1, r0x03
+00007E CFE4 F000      00117         MOVFF   PREINC1, r0x02
+000082 CFE4 F000      00118         MOVFF   PREINC1, r0x01
+000086 CFE4 F000      00119         MOVFF   PREINC1, r0x00
+00008A CFE4 FFD9      00120         MOVFF   PREINC1, FSR2L
+00008E 0012           00121         RETURN  
+                      00122 
+                      00123 ; ; Starting pCode block
+                      00124 S_event__eventInit      code
+000000                00125 _eventInit:
+                      00126 ;       .line   7; event.c      void eventInit(void) {
+000000 CFD9 FFE5      00127         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00128         MOVFF   FSR1L, FSR2L
+                      00129 ;       .line   8; event.c      kpInit();
+000008 EC?? F0??      00130         CALL    _kpInit
+00000C ????           00131         BANKSEL _key_ant
+                      00132 ;       .line   9; event.c      key_ant = 0;
+00000E 6B??           00133         CLRF    _key_ant, B
+000010 ????           00134         BANKSEL (_key_ant + 1)
+000012 6B??           00135         CLRF    (_key_ant + 1), B
+000014 CFE4 FFD9      00136         MOVFF   PREINC1, FSR2L
+000018 0012           00137         RETURN  
+                      00138 
+                      00139 
+                      00140 
+                      00141 ; Statistics:
+                      00142 ; code size:      170 (0x00aa) bytes ( 0.13%)
+                      00143 ;                  85 (0x0055) words
+                      00144 ; udata size:       2 (0x0002) bytes ( 0.16%)
+                      00145 ; access size:      6 (0x0006) bytes
+                      00146 
+                      00147 
+                      00148         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+PRODL                             00000FF3
+WREG                              00000FE8
+_00111_DS_                        00000050
+_00113_DS_                        0000005A
+_00117_DS_                        00000064
+_00133_DS_                        00000046
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+_eventInit                        00000000
+_eventRead                        00000000
+_key_ant                          00000000
+_kpInit                           00000000
+_kpRead                           00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+r0x04                             00000004
+r0x05                             00000005
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

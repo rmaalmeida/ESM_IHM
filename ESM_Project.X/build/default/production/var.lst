@@ -1,0 +1,269 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _varInit
+  0000                00015         global  _getState
+  0000                00016         global  _setState
+  0000                00017         global  _getTime
+  0000                00018         global  _setTime
+  0000                00019         global  _getAlarmLevel
+  0000                00020         global  _setAlarmLevel
+  0000                00021         global  _getLanguage
+  0000                00022         global  _setLanguage
+                      00023 
+                      00024 ;--------------------------------------------------------
+                      00025 ;       Equates to used internal registers
+                      00026 ;--------------------------------------------------------
+  00000FE8            00027 WREG    equ     0xfe8
+  00000FE1            00028 FSR1L   equ     0xfe1
+  00000FD9            00029 FSR2L   equ     0xfd9
+  00000FE5            00030 POSTDEC1        equ     0xfe5
+  00000FE4            00031 PREINC1 equ     0xfe4
+  00000FDB            00032 PLUSW2  equ     0xfdb
+  00000FF3            00033 PRODL   equ     0xff3
+                      00034 
+                      00035 
+                      00036 ; Internal registers
+                      00037 .registers      udata_ovr       0x0000
+000000                00038 r0x00   res     1
+                      00039 
+                      00040 udata_var_0     udata
+000000                00041 _state  res     1
+                      00042 
+                      00043 udata_var_1     udata
+000000                00044 _language       res     1
+                      00045 
+                      00046 udata_var_2     udata
+000000                00047 _time   res     2
+                      00048 
+                      00049 udata_var_3     udata
+000000                00050 _alarmLevel     res     2
+                      00051 
+                      00052 ;--------------------------------------------------------
+                      00053 ; global & static initialisations
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00054 ;--------------------------------------------------------
+                      00055 ; I code from now on!
+                      00056 ; ; Starting pCode block
+                      00057 S_var__setLanguage      code
+000000                00058 _setLanguage:
+                      00059 ;       .line   43; var.c       void setLanguage(char newLanguage){
+000000 CFD9 FFE5      00060         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00061         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00062         MOVFF   r0x00, POSTDEC1
+00000C 0E02           00063         MOVLW   0x02
+00000E CFDB F000      00064         MOVFF   PLUSW2, r0x00
+                      00065 ;       .line   46; var.c       language = newLanguage%2;
+000012 0E01           00066         MOVLW   0x01
+000014 14??           00067         ANDWF   r0x00, W
+000016 ????           00068         BANKSEL _language
+000018 6F??           00069         MOVWF   _language, B
+00001A CFE4 F000      00070         MOVFF   PREINC1, r0x00
+00001E CFE4 FFD9      00071         MOVFF   PREINC1, FSR2L
+000022 0012           00072         RETURN  
+                      00073 
+                      00074 ; ; Starting pCode block
+                      00075 S_var__getLanguage      code
+000000                00076 _getLanguage:
+                      00077 ;       .line   40; var.c       char getLanguage(void){
+000000 CFD9 FFE5      00078         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00079         MOVFF   FSR1L, FSR2L
+000008 ????           00080         BANKSEL _language
+                      00081 ;       .line   41; var.c       return language;
+00000A 51??           00082         MOVF    _language, W, B
+00000C CFE4 FFD9      00083         MOVFF   PREINC1, FSR2L
+000010 0012           00084         RETURN  
+                      00085 
+                      00086 ; ; Starting pCode block
+                      00087 S_var__setAlarmLevel    code
+000000                00088 _setAlarmLevel:
+                      00089 ;       .line   35; var.c       void setAlarmLevel(int newAlarmLevel) {
+000000 CFD9 FFE5      00090         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00091         MOVFF   FSR1L, FSR2L
+000008 0E02           00092         MOVLW   0x02
+00000A CFDB F000      00093         MOVFF   PLUSW2, _alarmLevel
+00000E 0E03           00094         MOVLW   0x03
+000010 CFDB F000      00095         MOVFF   PLUSW2, (_alarmLevel + 1)
+                      00096 ;       .line   36; var.c       alarmLevel = newAlarmLevel;
+000014 CFE4 FFD9      00097         MOVFF   PREINC1, FSR2L
+000018 0012           00098         RETURN  
+                      00099 
+                      00100 ; ; Starting pCode block
+                      00101 S_var__getAlarmLevel    code
+000000                00102 _getAlarmLevel:
+                      00103 ;       .line   32; var.c       int getAlarmLevel(void) {
+000000 CFD9 FFE5      00104         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00105         MOVFF   FSR1L, FSR2L
+                      00106 ;       .line   33; var.c       return alarmLevel;
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000008 C??? F???      00107         MOVFF   (_alarmLevel + 1), PRODL
+00000C ????           00108         BANKSEL _alarmLevel
+00000E 51??           00109         MOVF    _alarmLevel, W, B
+000010 CFE4 FFD9      00110         MOVFF   PREINC1, FSR2L
+000014 0012           00111         RETURN  
+                      00112 
+                      00113 ; ; Starting pCode block
+                      00114 S_var__setTime  code
+000000                00115 _setTime:
+                      00116 ;       .line   27; var.c       void setTime(int newTime) {
+000000 CFD9 FFE5      00117         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00118         MOVFF   FSR1L, FSR2L
+000008 0E02           00119         MOVLW   0x02
+00000A CFDB F000      00120         MOVFF   PLUSW2, _time
+00000E 0E03           00121         MOVLW   0x03
+000010 CFDB F000      00122         MOVFF   PLUSW2, (_time + 1)
+                      00123 ;       .line   28; var.c       time = newTime;
+000014 CFE4 FFD9      00124         MOVFF   PREINC1, FSR2L
+000018 0012           00125         RETURN  
+                      00126 
+                      00127 ; ; Starting pCode block
+                      00128 S_var__getTime  code
+000000                00129 _getTime:
+                      00130 ;       .line   24; var.c       int getTime(void) {
+000000 CFD9 FFE5      00131         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00132         MOVFF   FSR1L, FSR2L
+                      00133 ;       .line   25; var.c       return time;
+000008 C??? F???      00134         MOVFF   (_time + 1), PRODL
+00000C ????           00135         BANKSEL _time
+00000E 51??           00136         MOVF    _time, W, B
+000010 CFE4 FFD9      00137         MOVFF   PREINC1, FSR2L
+000014 0012           00138         RETURN  
+                      00139 
+                      00140 ; ; Starting pCode block
+                      00141 S_var__setState code
+000000                00142 _setState:
+                      00143 ;       .line   19; var.c       void setState(char newState) {
+000000 CFD9 FFE5      00144         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00145         MOVFF   FSR1L, FSR2L
+000008 0E02           00146         MOVLW   0x02
+00000A CFDB F000      00147         MOVFF   PLUSW2, _state
+                      00148 ;       .line   20; var.c       state = newState;
+00000E CFE4 FFD9      00149         MOVFF   PREINC1, FSR2L
+000012 0012           00150         RETURN  
+                      00151 
+                      00152 ; ; Starting pCode block
+                      00153 S_var__getState code
+000000                00154 _getState:
+                      00155 ;       .line   16; var.c       char getState(void) {
+000000 CFD9 FFE5      00156         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00157         MOVFF   FSR1L, FSR2L
+000008 ????           00158         BANKSEL _state
+                      00159 ;       .line   17; var.c       return state;
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00000A 51??           00160         MOVF    _state, W, B
+00000C CFE4 FFD9      00161         MOVFF   PREINC1, FSR2L
+000010 0012           00162         RETURN  
+                      00163 
+                      00164 ; ; Starting pCode block
+                      00165 S_var__varInit  code
+000000                00166 _varInit:
+                      00167 ;       .line   9; var.c        void varInit(void) {
+000000 CFD9 FFE5      00168         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00169         MOVFF   FSR1L, FSR2L
+000008 ????           00170         BANKSEL _state
+                      00171 ;       .line   10; var.c       state = 0;
+00000A 6B??           00172         CLRF    _state, B
+                      00173 ;       .line   11; var.c       time = 1000;
+00000C 0EE8           00174         MOVLW   0xe8
+00000E ????           00175         BANKSEL _time
+000010 6F??           00176         MOVWF   _time, B
+000012 0E03           00177         MOVLW   0x03
+000014 ????           00178         BANKSEL (_time + 1)
+000016 6F??           00179         MOVWF   (_time + 1), B
+000018 ????           00180         BANKSEL _alarmLevel
+                      00181 ;       .line   12; var.c       alarmLevel = 512;
+00001A 6B??           00182         CLRF    _alarmLevel, B
+00001C 0E02           00183         MOVLW   0x02
+00001E ????           00184         BANKSEL (_alarmLevel + 1)
+000020 6F??           00185         MOVWF   (_alarmLevel + 1), B
+000022 CFE4 FFD9      00186         MOVFF   PREINC1, FSR2L
+000026 0012           00187         RETURN  
+                      00188 
+                      00189 
+                      00190 
+                      00191 ; Statistics:
+                      00192 ; code size:      228 (0x00e4) bytes ( 0.17%)
+                      00193 ;                 114 (0x0072) words
+                      00194 ; udata size:       6 (0x0006) bytes ( 0.47%)
+                      00195 ; access size:      1 (0x0001) bytes
+                      00196 
+                      00197 
+                      00198         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  5
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+PRODL                             00000FF3
+WREG                              00000FE8
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+_alarmLevel                       00000000
+_getAlarmLevel                    00000000
+_getLanguage                      00000000
+_getState                         00000000
+_getTime                          00000000
+_language                         00000000
+_setAlarmLevel                    00000000
+_setLanguage                      00000000
+_setState                         00000000
+_setTime                          00000000
+_state                            00000000
+_time                             00000000
+_varInit                          00000000
+r0x00                             00000000
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

@@ -1,0 +1,186 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _adcInit
+  0000                00015         global  _adcRead
+                      00016 
+                      00017 ;--------------------------------------------------------
+                      00018 ;       Equates to used internal registers
+                      00019 ;--------------------------------------------------------
+  00000FE8            00020 WREG    equ     0xfe8
+  00000FE1            00021 FSR1L   equ     0xfe1
+  00000FD9            00022 FSR2L   equ     0xfd9
+  00000FEF            00023 INDF0   equ     0xfef
+  00000FE5            00024 POSTDEC1        equ     0xfe5
+  00000FE4            00025 PREINC1 equ     0xfe4
+  00000FF3            00026 PRODL   equ     0xff3
+                      00027 
+                      00028 
+                      00029 ; Internal registers
+                      00030 .registers      udata_ovr       0x0000
+000000                00031 r0x00   res     1
+000001                00032 r0x01   res     1
+000002                00033 r0x02   res     1
+000003                00034 r0x03   res     1
+                      00035 
+                      00036 ;--------------------------------------------------------
+                      00037 ; global & static initialisations
+                      00038 ;--------------------------------------------------------
+                      00039 ; I code from now on!
+                      00040 ; ; Starting pCode block
+                      00041 S_adc__adcRead  code
+000000                00042 _adcRead:
+                      00043 ;       .line   31; adc.c       int adcRead(void) {
+000000 CFD9 FFE5      00044         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00045         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00046         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00047         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00048         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00049         MOVFF   r0x03, POSTDEC1
+                      00050 ;       .line   33; adc.c       ADCON0 |= 0b00000010; //inicia conversao
+000018 EE0F F0C2      00051         LFSR    0x00, 0xfc2
+00001C CFEF F000      00052         MOVFF   INDF0, r0x00
+000020 82??           00053         BSF     r0x00, 1
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000022 EE0F F0C2      00054         LFSR    0x00, 0xfc2
+000026 C??? F???      00055         MOVFF   r0x00, INDF0
+00002A                00056 _00110_DS_:
+                      00057 ;       .line   35; adc.c       while (BitTst(ADCON0, 1)); // espera terminar a conversão;
+00002A EE0F F0C2      00058         LFSR    0x00, 0xfc2
+00002E CFEF F000      00059         MOVFF   INDF0, r0x00
+000032 B2??           00060         BTFSC   r0x00, 1
+000034 D???           00061         BRA     _00110_DS_
+                      00062 ;       .line   37; adc.c       ADvalor = ADRESH; // le o resultado
+000036 EE0F F0C4      00063         LFSR    0x00, 0xfc4
+00003A CFEF F000      00064         MOVFF   INDF0, r0x00
+00003E 6A??           00065         CLRF    r0x01
+                      00066 ;       .line   38; adc.c       ADvalor <<= 8;
+000040 50??           00067         MOVF    r0x00, W
+000042 6E??           00068         MOVWF   r0x01
+000044 6A??           00069         CLRF    r0x00
+                      00070 ;       .line   39; adc.c       ADvalor += ADRESL;
+000046 EE0F F0C3      00071         LFSR    0x00, 0xfc3
+00004A CFEF F000      00072         MOVFF   INDF0, r0x02
+00004E 6A??           00073         CLRF    r0x03
+000050 50??           00074         MOVF    r0x02, W
+000052 26??           00075         ADDWF   r0x00, F
+000054 50??           00076         MOVF    r0x03, W
+000056 22??           00077         ADDWFC  r0x01, F
+                      00078 ;       .line   40; adc.c       return ADvalor;
+000058 C??? F???      00079         MOVFF   r0x01, PRODL
+00005C 50??           00080         MOVF    r0x00, W
+00005E CFE4 F000      00081         MOVFF   PREINC1, r0x03
+000062 CFE4 F000      00082         MOVFF   PREINC1, r0x02
+000066 CFE4 F000      00083         MOVFF   PREINC1, r0x01
+00006A CFE4 F000      00084         MOVFF   PREINC1, r0x00
+00006E CFE4 FFD9      00085         MOVFF   PREINC1, FSR2L
+000072 0012           00086         RETURN  
+                      00087 
+                      00088 ; ; Starting pCode block
+                      00089 S_adc__adcInit  code
+000000                00090 _adcInit:
+                      00091 ;       .line   23; adc.c       void adcInit(void) {
+000000 CFD9 FFE5      00092         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00093         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00094         MOVFF   r0x00, POSTDEC1
+                      00095 ;       .line   24; adc.c       BitSet(TRISA, 0); //seta o bit 0 como entrada
+00000C EE0F F092      00096         LFSR    0x00, 0xf92
+000010 CFEF F000      00097         MOVFF   INDF0, r0x00
+000014 80??           00098         BSF     r0x00, 0
+000016 EE0F F092      00099         LFSR    0x00, 0xf92
+00001A C??? F???      00100         MOVFF   r0x00, INDF0
+                      00101 ;       .line   26; adc.c       ADCON0 = 0b00000001; //seleciona o canal 0 e liga o ad
+00001E EE0F F0C2      00102         LFSR    0x00, 0xfc2
+000022 0E01           00103         MOVLW   0x01
+000024 6EEF           00104         MOVWF   INDF0
+                      00105 ;       .line   27; adc.c       ADCON1 = 0b00001110; //apenas AN0 é analogico, a referencia é baseada na
+                             fonte
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000026 EE0F F0C1      00106         LFSR    0x00, 0xfc1
+00002A 0E0E           00107         MOVLW   0x0e
+00002C 6EEF           00108         MOVWF   INDF0
+                      00109 ;       .line   28; adc.c       ADCON2 = 0b10101010; //FOSC /32, Alinhamento à direita e tempo de conv =
+                             12 TAD
+00002E EE0F F0C0      00110         LFSR    0x00, 0xfc0
+000032 0EAA           00111         MOVLW   0xaa
+000034 6EEF           00112         MOVWF   INDF0
+000036 CFE4 F000      00113         MOVFF   PREINC1, r0x00
+00003A CFE4 FFD9      00114         MOVFF   PREINC1, FSR2L
+00003E 0012           00115         RETURN  
+                      00116 
+                      00117 
+                      00118 
+                      00119 ; Statistics:
+                      00120 ; code size:      180 (0x00b4) bytes ( 0.14%)
+                      00121 ;                  90 (0x005a) words
+                      00122 ; udata size:       0 (0x0000) bytes ( 0.00%)
+                      00123 ; access size:      4 (0x0004) bytes
+                      00124 
+                      00125 
+                      00126         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+PRODL                             00000FF3
+WREG                              00000FE8
+_00110_DS_                        0000002A
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+_adcInit                          00000000
+_adcRead                          00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

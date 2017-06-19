@@ -1,0 +1,195 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _printf
+                      00015 
+                      00016 ;--------------------------------------------------------
+                      00017 ; extern variables in this module
+                      00018 ;--------------------------------------------------------
+  0000                00019         extern  __gptrget1
+  0000                00020         extern  _lcdData
+                      00021 
+                      00022 ;--------------------------------------------------------
+                      00023 ;       Equates to used internal registers
+                      00024 ;--------------------------------------------------------
+  00000FD8            00025 STATUS  equ     0xfd8
+  00000FE8            00026 WREG    equ     0xfe8
+  00000FE9            00027 FSR0L   equ     0xfe9
+  00000FE1            00028 FSR1L   equ     0xfe1
+  00000FD9            00029 FSR2L   equ     0xfd9
+  00000FE6            00030 POSTINC1        equ     0xfe6
+  00000FE5            00031 POSTDEC1        equ     0xfe5
+  00000FE4            00032 PREINC1 equ     0xfe4
+  00000FDB            00033 PLUSW2  equ     0xfdb
+  00000FF3            00034 PRODL   equ     0xff3
+                      00035 
+                      00036 
+                      00037 ; Internal registers
+                      00038 .registers      udata_ovr       0x0000
+000000                00039 r0x00   res     1
+000001                00040 r0x01   res     1
+000002                00041 r0x02   res     1
+000003                00042 r0x03   res     1
+000004                00043 r0x04   res     1
+000005                00044 r0x05   res     1
+000006                00045 r0x06   res     1
+000007                00046 r0x07   res     1
+                      00047 
+                      00048 ;--------------------------------------------------------
+                      00049 ; global & static initialisations
+                      00050 ;--------------------------------------------------------
+                      00051 ; I code from now on!
+                      00052 ; ; Starting pCode block
+                      00053 S_stdio__printf code
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000000                00054 _printf:
+                      00055 ;       .line   3; stdio.c      void printf(char txt[16]) {
+000000 CFD9 FFE5      00056         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00057         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00058         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00059         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00060         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00061         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00062         MOVFF   r0x04, POSTDEC1
+00001C C??? F???      00063         MOVFF   r0x05, POSTDEC1
+000020 C??? F???      00064         MOVFF   r0x06, POSTDEC1
+000024 C??? F???      00065         MOVFF   r0x07, POSTDEC1
+000028 0E02           00066         MOVLW   0x02
+00002A CFDB F000      00067         MOVFF   PLUSW2, r0x00
+00002E 0E03           00068         MOVLW   0x03
+000030 CFDB F000      00069         MOVFF   PLUSW2, r0x01
+000034 0E04           00070         MOVLW   0x04
+000036 CFDB F000      00071         MOVFF   PLUSW2, r0x02
+                      00072 ;       .line   5; stdio.c      for (i = 0; i < 16; i++) {
+00003A 6A??           00073         CLRF    r0x03
+00003C 6A??           00074         CLRF    r0x04
+00003E                00075 _00106_DS_:
+                      00076 ;       .line   6; stdio.c      lcdData(txt[i]);
+00003E 50??           00077         MOVF    r0x03, W
+000040 24??           00078         ADDWF   r0x00, W
+000042 6E??           00079         MOVWF   r0x05
+000044 50??           00080         MOVF    r0x04, W
+000046 20??           00081         ADDWFC  r0x01, W
+000048 6E??           00082         MOVWF   r0x06
+00004A 6AE8           00083         CLRF    WREG
+00004C BE??           00084         BTFSC   r0x04, 7
+00004E 68E8           00085         SETF    WREG
+000050 20??           00086         ADDWFC  r0x02, W
+000052 6E??           00087         MOVWF   r0x07
+000054 C??? F???      00088         MOVFF   r0x05, FSR0L
+000058 C??? F???      00089         MOVFF   r0x06, PRODL
+00005C 50??           00090         MOVF    r0x07, W
+00005E EC?? F0??      00091         CALL    __gptrget1
+000062 6E??           00092         MOVWF   r0x05
+000064 50??           00093         MOVF    r0x05, W
+000066 6EE5           00094         MOVWF   POSTDEC1
+000068 EC?? F0??      00095         CALL    _lcdData
+00006C 52E6           00096         MOVF    POSTINC1, F
+                      00097 ;       .line   5; stdio.c      for (i = 0; i < 16; i++) {
+00006E 4A??           00098         INFSNZ  r0x03, F
+000070 2A??           00099         INCF    r0x04, F
+000072 50??           00100         MOVF    r0x04, W
+000074 0F80           00101         ADDLW   0x80
+000076 0F80           00102         ADDLW   0x80
+000078 E1??           00103         BNZ     _00114_DS_
+00007A 0E10           00104         MOVLW   0x10
+00007C 5C??           00105         SUBWF   r0x03, W
+00007E                00106 _00114_DS_:
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00007E E3??           00107         BNC     _00106_DS_
+000080 CFE4 F000      00108         MOVFF   PREINC1, r0x07
+000084 CFE4 F000      00109         MOVFF   PREINC1, r0x06
+000088 CFE4 F000      00110         MOVFF   PREINC1, r0x05
+00008C CFE4 F000      00111         MOVFF   PREINC1, r0x04
+000090 CFE4 F000      00112         MOVFF   PREINC1, r0x03
+000094 CFE4 F000      00113         MOVFF   PREINC1, r0x02
+000098 CFE4 F000      00114         MOVFF   PREINC1, r0x01
+00009C CFE4 F000      00115         MOVFF   PREINC1, r0x00
+0000A0 CFE4 FFD9      00116         MOVFF   PREINC1, FSR2L
+0000A4 0012           00117         RETURN  
+                      00118 
+                      00119 
+                      00120 
+                      00121 ; Statistics:
+                      00122 ; code size:      166 (0x00a6) bytes ( 0.13%)
+                      00123 ;                  83 (0x0053) words
+                      00124 ; udata size:       0 (0x0000) bytes ( 0.00%)
+                      00125 ; access size:      8 (0x0008) bytes
+                      00126 
+                      00127 
+                      00128         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR0L                             00000FE9
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+POSTINC1                          00000FE6
+PREINC1                           00000FE4
+PRODL                             00000FF3
+STATUS                            00000FD8
+WREG                              00000FE8
+_00106_DS_                        0000003E
+_00114_DS_                        0000007E
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+__gptrget1                        00000000
+_lcdData                          00000000
+_printf                           00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+r0x04                             00000004
+r0x05                             00000005
+r0x06                             00000006
+r0x07                             00000007
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

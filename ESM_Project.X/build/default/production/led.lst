@@ -1,0 +1,251 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _initLed
+  0000                00015         global  _ledON
+  0000                00016         global  _ledOFF
+                      00017 
+                      00018 ;--------------------------------------------------------
+                      00019 ;       Equates to used internal registers
+                      00020 ;--------------------------------------------------------
+  00000FD8            00021 STATUS  equ     0xfd8
+  00000FE8            00022 WREG    equ     0xfe8
+  00000FE1            00023 FSR1L   equ     0xfe1
+  00000FD9            00024 FSR2L   equ     0xfd9
+  00000FEF            00025 INDF0   equ     0xfef
+  00000FE5            00026 POSTDEC1        equ     0xfe5
+  00000FE4            00027 PREINC1 equ     0xfe4
+  00000FDB            00028 PLUSW2  equ     0xfdb
+                      00029 
+                      00030 
+                      00031 ; Internal registers
+                      00032 .registers      udata_ovr       0x0000
+000000                00033 r0x00   res     1
+000001                00034 r0x01   res     1
+000002                00035 r0x02   res     1
+000003                00036 r0x03   res     1
+000004                00037 r0x04   res     1
+                      00038 
+                      00039 ;--------------------------------------------------------
+                      00040 ; global & static initialisations
+                      00041 ;--------------------------------------------------------
+                      00042 ; I code from now on!
+                      00043 ; ; Starting pCode block
+                      00044 S_led__ledOFF   code
+000000                00045 _ledOFF:
+                      00046 ;       .line   19; led.c       void ledOFF (int x){
+000000 CFD9 FFE5      00047         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00048         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00049         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00050         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00051         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00052         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00053         MOVFF   r0x04, POSTDEC1
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00001C 0E02           00054         MOVLW   0x02
+00001E CFDB F000      00055         MOVFF   PLUSW2, r0x00
+000022 0E03           00056         MOVLW   0x03
+000024 CFDB F000      00057         MOVFF   PLUSW2, r0x01
+                      00058 ;       .line   20; led.c       BitClr(PORTD,x);
+000028 EE0F F083      00059         LFSR    0x00, 0xf83
+00002C CFEF F000      00060         MOVFF   INDF0, r0x02
+000030 0E01           00061         MOVLW   0x01
+000032 6E??           00062         MOVWF   r0x03
+000034 6A??           00063         CLRF    r0x04
+000036 50??           00064         MOVF    r0x00, W
+000038 E0??           00065         BZ      _00122_DS_
+00003A E6??           00066         BN      _00125_DS_
+00003C 6CE8           00067         NEGF    WREG
+00003E 90D8           00068         BCF     STATUS, 0
+000040                00069 _00123_DS_:
+000040 36??           00070         RLCF    r0x03, F
+000042 36??           00071         RLCF    r0x04, F
+000044 0F01           00072         ADDLW   0x01
+000046 E3??           00073         BNC     _00123_DS_
+000048 D???           00074         BRA     _00122_DS_
+00004A                00075 _00125_DS_:
+00004A 90D8           00076         BCF     STATUS, 0
+00004C                00077 _00124_DS_:
+00004C 32??           00078         RRCF    r0x04, F
+00004E 32??           00079         RRCF    r0x03, F
+000050 0F01           00080         ADDLW   0x01
+000052 E3??           00081         BNC     _00124_DS_
+000054                00082 _00122_DS_:
+000054 1C??           00083         COMF    r0x03, W
+000056 6E??           00084         MOVWF   r0x00
+000058 50??           00085         MOVF    r0x00, W
+00005A 16??           00086         ANDWF   r0x02, F
+00005C EE0F F083      00087         LFSR    0x00, 0xf83
+000060 C??? F???      00088         MOVFF   r0x02, INDF0
+000064 CFE4 F000      00089         MOVFF   PREINC1, r0x04
+000068 CFE4 F000      00090         MOVFF   PREINC1, r0x03
+00006C CFE4 F000      00091         MOVFF   PREINC1, r0x02
+000070 CFE4 F000      00092         MOVFF   PREINC1, r0x01
+000074 CFE4 F000      00093         MOVFF   PREINC1, r0x00
+000078 CFE4 FFD9      00094         MOVFF   PREINC1, FSR2L
+00007C 0012           00095         RETURN  
+                      00096 
+                      00097 ; ; Starting pCode block
+                      00098 S_led__ledON    code
+000000                00099 _ledON:
+                      00100 ;       .line   14; led.c       void ledON (int x){
+000000 CFD9 FFE5      00101         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00102         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00103         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00104         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00105         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00106         MOVFF   r0x03, POSTDEC1
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000018 C??? F???      00107         MOVFF   r0x04, POSTDEC1
+00001C 0E02           00108         MOVLW   0x02
+00001E CFDB F000      00109         MOVFF   PLUSW2, r0x00
+000022 0E03           00110         MOVLW   0x03
+000024 CFDB F000      00111         MOVFF   PLUSW2, r0x01
+                      00112 ;       .line   15; led.c       BitSet(PORTD,x);
+000028 EE0F F083      00113         LFSR    0x00, 0xf83
+00002C CFEF F000      00114         MOVFF   INDF0, r0x02
+000030 0E01           00115         MOVLW   0x01
+000032 6E??           00116         MOVWF   r0x03
+000034 6A??           00117         CLRF    r0x04
+000036 50??           00118         MOVF    r0x00, W
+000038 E0??           00119         BZ      _00112_DS_
+00003A E6??           00120         BN      _00115_DS_
+00003C 6CE8           00121         NEGF    WREG
+00003E 90D8           00122         BCF     STATUS, 0
+000040                00123 _00113_DS_:
+000040 36??           00124         RLCF    r0x03, F
+000042 36??           00125         RLCF    r0x04, F
+000044 0F01           00126         ADDLW   0x01
+000046 E3??           00127         BNC     _00113_DS_
+000048 D???           00128         BRA     _00112_DS_
+00004A                00129 _00115_DS_:
+00004A 90D8           00130         BCF     STATUS, 0
+00004C                00131 _00114_DS_:
+00004C 32??           00132         RRCF    r0x04, F
+00004E 32??           00133         RRCF    r0x03, F
+000050 0F01           00134         ADDLW   0x01
+000052 E3??           00135         BNC     _00114_DS_
+000054                00136 _00112_DS_:
+000054 50??           00137         MOVF    r0x03, W
+000056 6E??           00138         MOVWF   r0x00
+000058 50??           00139         MOVF    r0x00, W
+00005A 12??           00140         IORWF   r0x02, F
+00005C EE0F F083      00141         LFSR    0x00, 0xf83
+000060 C??? F???      00142         MOVFF   r0x02, INDF0
+000064 CFE4 F000      00143         MOVFF   PREINC1, r0x04
+000068 CFE4 F000      00144         MOVFF   PREINC1, r0x03
+00006C CFE4 F000      00145         MOVFF   PREINC1, r0x02
+000070 CFE4 F000      00146         MOVFF   PREINC1, r0x01
+000074 CFE4 F000      00147         MOVFF   PREINC1, r0x00
+000078 CFE4 FFD9      00148         MOVFF   PREINC1, FSR2L
+00007C 0012           00149         RETURN  
+                      00150 
+                      00151 ; ; Starting pCode block
+                      00152 S_led__initLed  code
+000000                00153 _initLed:
+                      00154 ;       .line   9; led.c        void initLed (void){
+000000 CFD9 FFE5      00155         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00156         MOVFF   FSR1L, FSR2L
+                      00157 ;       .line   10; led.c       TRISD = 0x00;
+000008 EE0F F095      00158         LFSR    0x00, 0xf95
+00000C 0E00           00159         MOVLW   0x00
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00000E 6EEF           00160         MOVWF   INDF0
+                      00161 ;       .line   11; led.c       PORTD = 0xFF;
+000010 EE0F F083      00162         LFSR    0x00, 0xf83
+000014 0EFF           00163         MOVLW   0xff
+000016 6EEF           00164         MOVWF   INDF0
+000018 CFE4 FFD9      00165         MOVFF   PREINC1, FSR2L
+00001C 0012           00166         RETURN  
+                      00167 
+                      00168 
+                      00169 
+                      00170 ; Statistics:
+                      00171 ; code size:      282 (0x011a) bytes ( 0.22%)
+                      00172 ;                 141 (0x008d) words
+                      00173 ; udata size:       0 (0x0000) bytes ( 0.00%)
+                      00174 ; access size:      5 (0x0005) bytes
+                      00175 
+                      00176 
+                      00177         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  5
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+STATUS                            00000FD8
+WREG                              00000FE8
+_00112_DS_                        00000054
+_00113_DS_                        00000040
+_00114_DS_                        0000004C
+_00115_DS_                        0000004A
+_00122_DS_                        00000054
+_00123_DS_                        00000040
+_00124_DS_                        0000004C
+_00125_DS_                        0000004A
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+_initLed                          00000000
+_ledOFF                           00000000
+_ledON                            00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+r0x04                             00000004
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

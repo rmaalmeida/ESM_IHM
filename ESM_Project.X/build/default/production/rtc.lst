@@ -1,0 +1,1294 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _rtcInit
+  0000                00015         global  _ht1380write
+  0000                00016         global  _ht1380read
+  0000                00017         global  _rtcSetDateTime
+  0000                00018         global  _rtcGetSeconds
+  0000                00019         global  _rtcGetMinutes
+  0000                00020         global  _rtcGetHours
+  0000                00021         global  _rtcGetDate
+  0000                00022         global  _rtcGetMonth
+  0000                00023         global  _rtcGetYear
+  0000                00024         global  _rtcGetDay
+  0000                00025         global  _rtcPutSeconds
+  0000                00026         global  _rtcPutMinutes
+  0000                00027         global  _rtcPutHours
+  0000                00028         global  _rtcPutDate
+  0000                00029         global  _rtcPutMonth
+  0000                00030         global  _rtcPutDay
+  0000                00031         global  _rtcPutYear
+  0000                00032         global  _de
+  0000                00033         global  _rtcStart
+  0000                00034         global  _writeByte
+  0000                00035         global  _readByte
+                      00036 
+                      00037 ;--------------------------------------------------------
+                      00038 ; extern variables in this module
+                      00039 ;--------------------------------------------------------
+  0000                00040         extern  __moduchar
+  0000                00041         extern  __divuchar
+                      00042 
+                      00043 ;--------------------------------------------------------
+                      00044 ;       Equates to used internal registers
+                      00045 ;--------------------------------------------------------
+  00000FD8            00046 STATUS  equ     0xfd8
+  00000FE8            00047 WREG    equ     0xfe8
+  00000FE1            00048 FSR1L   equ     0xfe1
+  00000FD9            00049 FSR2L   equ     0xfd9
+  00000FEF            00050 INDF0   equ     0xfef
+  00000FE6            00051 POSTINC1        equ     0xfe6
+  00000FE5            00052 POSTDEC1        equ     0xfe5
+  00000FE4            00053 PREINC1 equ     0xfe4
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  00000FDB            00054 PLUSW2  equ     0xfdb
+  00000FF3            00055 PRODL   equ     0xff3
+                      00056 
+                      00057 
+                      00058 ; Internal registers
+                      00059 .registers      udata_ovr       0x0000
+000000                00060 r0x00   res     1
+000001                00061 r0x01   res     1
+000002                00062 r0x02   res     1
+                      00063 
+                      00064 udata_rtc_0     udata
+000000                00065 _de     res     1
+                      00066 
+                      00067 ;--------------------------------------------------------
+                      00068 ; global & static initialisations
+                      00069 ;--------------------------------------------------------
+                      00070 ; I code from now on!
+                      00071 ; ; Starting pCode block
+                      00072 S_rtc__rtcPutYear       code
+000000                00073 _rtcPutYear:
+                      00074 ;       .line   228; rtc.c      void rtcPutYear(unsigned char year) {
+000000 CFD9 FFE5      00075         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00076         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00077         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00078         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00079         MOVFF   r0x02, POSTDEC1
+000014 0E02           00080         MOVLW   0x02
+000016 CFDB F000      00081         MOVFF   PLUSW2, r0x00
+                      00082 ;       .line   229; rtc.c      ht1380write(6, (year % 10) | ((year / 10) << 4));
+00001A 0E0A           00083         MOVLW   0x0a
+00001C 6EE5           00084         MOVWF   POSTDEC1
+00001E C??? F???      00085         MOVFF   r0x00, POSTDEC1
+000022 EC?? F0??      00086         CALL    __moduchar
+000026 6E??           00087         MOVWF   r0x01
+000028 50E4           00088         MOVF    PREINC1, W
+00002A 50E4           00089         MOVF    PREINC1, W
+00002C 0E0A           00090         MOVLW   0x0a
+00002E 6EE5           00091         MOVWF   POSTDEC1
+000030 C??? F???      00092         MOVFF   r0x00, POSTDEC1
+000034 EC?? F0??      00093         CALL    __divuchar
+000038 6E??           00094         MOVWF   r0x00
+00003A 50E4           00095         MOVF    PREINC1, W
+00003C 50E4           00096         MOVF    PREINC1, W
+00003E 38??           00097         SWAPF   r0x00, W
+000040 0BF0           00098         ANDLW   0xf0
+000042 6E??           00099         MOVWF   r0x02
+000044 50??           00100         MOVF    r0x02, W
+000046 12??           00101         IORWF   r0x01, F
+000048 50??           00102         MOVF    r0x01, W
+00004A 6EE5           00103         MOVWF   POSTDEC1
+00004C 0E06           00104         MOVLW   0x06
+00004E 6EE5           00105         MOVWF   POSTDEC1
+000050 EC?? F0??      00106         CALL    _ht1380write
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000054 52E6           00107         MOVF    POSTINC1, F
+000056 52E6           00108         MOVF    POSTINC1, F
+000058 CFE4 F000      00109         MOVFF   PREINC1, r0x02
+00005C CFE4 F000      00110         MOVFF   PREINC1, r0x01
+000060 CFE4 F000      00111         MOVFF   PREINC1, r0x00
+000064 CFE4 FFD9      00112         MOVFF   PREINC1, FSR2L
+000068 0012           00113         RETURN  
+                      00114 
+                      00115 ; ; Starting pCode block
+                      00116 S_rtc__rtcPutDay        code
+000000                00117 _rtcPutDay:
+                      00118 ;       .line   224; rtc.c      void rtcPutDay(unsigned char day) {
+000000 CFD9 FFE5      00119         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00120         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00121         MOVFF   r0x00, POSTDEC1
+00000C 0E02           00122         MOVLW   0x02
+00000E CFDB F000      00123         MOVFF   PLUSW2, r0x00
+                      00124 ;       .line   225; rtc.c      ht1380write(5, day);
+000012 50??           00125         MOVF    r0x00, W
+000014 6EE5           00126         MOVWF   POSTDEC1
+000016 0E05           00127         MOVLW   0x05
+000018 6EE5           00128         MOVWF   POSTDEC1
+00001A EC?? F0??      00129         CALL    _ht1380write
+00001E 52E6           00130         MOVF    POSTINC1, F
+000020 52E6           00131         MOVF    POSTINC1, F
+000022 CFE4 F000      00132         MOVFF   PREINC1, r0x00
+000026 CFE4 FFD9      00133         MOVFF   PREINC1, FSR2L
+00002A 0012           00134         RETURN  
+                      00135 
+                      00136 ; ; Starting pCode block
+                      00137 S_rtc__rtcPutMonth      code
+000000                00138 _rtcPutMonth:
+                      00139 ;       .line   220; rtc.c      void rtcPutMonth(unsigned char month) {
+000000 CFD9 FFE5      00140         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00141         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00142         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00143         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00144         MOVFF   r0x02, POSTDEC1
+000014 0E02           00145         MOVLW   0x02
+000016 CFDB F000      00146         MOVFF   PLUSW2, r0x00
+                      00147 ;       .line   221; rtc.c      ht1380write(4, (month % 10) | ((month / 10) << 4));
+00001A 0E0A           00148         MOVLW   0x0a
+00001C 6EE5           00149         MOVWF   POSTDEC1
+00001E C??? F???      00150         MOVFF   r0x00, POSTDEC1
+000022 EC?? F0??      00151         CALL    __moduchar
+000026 6E??           00152         MOVWF   r0x01
+000028 50E4           00153         MOVF    PREINC1, W
+00002A 50E4           00154         MOVF    PREINC1, W
+00002C 0E0A           00155         MOVLW   0x0a
+00002E 6EE5           00156         MOVWF   POSTDEC1
+000030 C??? F???      00157         MOVFF   r0x00, POSTDEC1
+000034 EC?? F0??      00158         CALL    __divuchar
+000038 6E??           00159         MOVWF   r0x00
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00003A 50E4           00160         MOVF    PREINC1, W
+00003C 50E4           00161         MOVF    PREINC1, W
+00003E 38??           00162         SWAPF   r0x00, W
+000040 0BF0           00163         ANDLW   0xf0
+000042 6E??           00164         MOVWF   r0x02
+000044 50??           00165         MOVF    r0x02, W
+000046 12??           00166         IORWF   r0x01, F
+000048 50??           00167         MOVF    r0x01, W
+00004A 6EE5           00168         MOVWF   POSTDEC1
+00004C 0E04           00169         MOVLW   0x04
+00004E 6EE5           00170         MOVWF   POSTDEC1
+000050 EC?? F0??      00171         CALL    _ht1380write
+000054 52E6           00172         MOVF    POSTINC1, F
+000056 52E6           00173         MOVF    POSTINC1, F
+000058 CFE4 F000      00174         MOVFF   PREINC1, r0x02
+00005C CFE4 F000      00175         MOVFF   PREINC1, r0x01
+000060 CFE4 F000      00176         MOVFF   PREINC1, r0x00
+000064 CFE4 FFD9      00177         MOVFF   PREINC1, FSR2L
+000068 0012           00178         RETURN  
+                      00179 
+                      00180 ; ; Starting pCode block
+                      00181 S_rtc__rtcPutDate       code
+000000                00182 _rtcPutDate:
+                      00183 ;       .line   216; rtc.c      void rtcPutDate(unsigned char date) {
+000000 CFD9 FFE5      00184         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00185         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00186         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00187         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00188         MOVFF   r0x02, POSTDEC1
+000014 0E02           00189         MOVLW   0x02
+000016 CFDB F000      00190         MOVFF   PLUSW2, r0x00
+                      00191 ;       .line   217; rtc.c      ht1380write(3, (date % 10) | ((date / 10) << 4));
+00001A 0E0A           00192         MOVLW   0x0a
+00001C 6EE5           00193         MOVWF   POSTDEC1
+00001E C??? F???      00194         MOVFF   r0x00, POSTDEC1
+000022 EC?? F0??      00195         CALL    __moduchar
+000026 6E??           00196         MOVWF   r0x01
+000028 50E4           00197         MOVF    PREINC1, W
+00002A 50E4           00198         MOVF    PREINC1, W
+00002C 0E0A           00199         MOVLW   0x0a
+00002E 6EE5           00200         MOVWF   POSTDEC1
+000030 C??? F???      00201         MOVFF   r0x00, POSTDEC1
+000034 EC?? F0??      00202         CALL    __divuchar
+000038 6E??           00203         MOVWF   r0x00
+00003A 50E4           00204         MOVF    PREINC1, W
+00003C 50E4           00205         MOVF    PREINC1, W
+00003E 38??           00206         SWAPF   r0x00, W
+000040 0BF0           00207         ANDLW   0xf0
+000042 6E??           00208         MOVWF   r0x02
+000044 50??           00209         MOVF    r0x02, W
+000046 12??           00210         IORWF   r0x01, F
+000048 50??           00211         MOVF    r0x01, W
+00004A 6EE5           00212         MOVWF   POSTDEC1
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  5
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00004C 0E03           00213         MOVLW   0x03
+00004E 6EE5           00214         MOVWF   POSTDEC1
+000050 EC?? F0??      00215         CALL    _ht1380write
+000054 52E6           00216         MOVF    POSTINC1, F
+000056 52E6           00217         MOVF    POSTINC1, F
+000058 CFE4 F000      00218         MOVFF   PREINC1, r0x02
+00005C CFE4 F000      00219         MOVFF   PREINC1, r0x01
+000060 CFE4 F000      00220         MOVFF   PREINC1, r0x00
+000064 CFE4 FFD9      00221         MOVFF   PREINC1, FSR2L
+000068 0012           00222         RETURN  
+                      00223 
+                      00224 ; ; Starting pCode block
+                      00225 S_rtc__rtcPutHours      code
+000000                00226 _rtcPutHours:
+                      00227 ;       .line   212; rtc.c      void rtcPutHours(unsigned char hours) {
+000000 CFD9 FFE5      00228         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00229         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00230         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00231         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00232         MOVFF   r0x02, POSTDEC1
+000014 0E02           00233         MOVLW   0x02
+000016 CFDB F000      00234         MOVFF   PLUSW2, r0x00
+                      00235 ;       .line   213; rtc.c      ht1380write(2, (hours % 10) | ((hours / 10) << 4));
+00001A 0E0A           00236         MOVLW   0x0a
+00001C 6EE5           00237         MOVWF   POSTDEC1
+00001E C??? F???      00238         MOVFF   r0x00, POSTDEC1
+000022 EC?? F0??      00239         CALL    __moduchar
+000026 6E??           00240         MOVWF   r0x01
+000028 50E4           00241         MOVF    PREINC1, W
+00002A 50E4           00242         MOVF    PREINC1, W
+00002C 0E0A           00243         MOVLW   0x0a
+00002E 6EE5           00244         MOVWF   POSTDEC1
+000030 C??? F???      00245         MOVFF   r0x00, POSTDEC1
+000034 EC?? F0??      00246         CALL    __divuchar
+000038 6E??           00247         MOVWF   r0x00
+00003A 50E4           00248         MOVF    PREINC1, W
+00003C 50E4           00249         MOVF    PREINC1, W
+00003E 38??           00250         SWAPF   r0x00, W
+000040 0BF0           00251         ANDLW   0xf0
+000042 6E??           00252         MOVWF   r0x02
+000044 50??           00253         MOVF    r0x02, W
+000046 12??           00254         IORWF   r0x01, F
+000048 50??           00255         MOVF    r0x01, W
+00004A 6EE5           00256         MOVWF   POSTDEC1
+00004C 0E02           00257         MOVLW   0x02
+00004E 6EE5           00258         MOVWF   POSTDEC1
+000050 EC?? F0??      00259         CALL    _ht1380write
+000054 52E6           00260         MOVF    POSTINC1, F
+000056 52E6           00261         MOVF    POSTINC1, F
+000058 CFE4 F000      00262         MOVFF   PREINC1, r0x02
+00005C CFE4 F000      00263         MOVFF   PREINC1, r0x01
+000060 CFE4 F000      00264         MOVFF   PREINC1, r0x00
+000064 CFE4 FFD9      00265         MOVFF   PREINC1, FSR2L
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  6
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000068 0012           00266         RETURN  
+                      00267 
+                      00268 ; ; Starting pCode block
+                      00269 S_rtc__rtcPutMinutes    code
+000000                00270 _rtcPutMinutes:
+                      00271 ;       .line   208; rtc.c      void rtcPutMinutes(unsigned char minutes) {
+000000 CFD9 FFE5      00272         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00273         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00274         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00275         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00276         MOVFF   r0x02, POSTDEC1
+000014 0E02           00277         MOVLW   0x02
+000016 CFDB F000      00278         MOVFF   PLUSW2, r0x00
+                      00279 ;       .line   209; rtc.c      ht1380write(1, (minutes % 10) | ((minutes / 10) << 4));
+00001A 0E0A           00280         MOVLW   0x0a
+00001C 6EE5           00281         MOVWF   POSTDEC1
+00001E C??? F???      00282         MOVFF   r0x00, POSTDEC1
+000022 EC?? F0??      00283         CALL    __moduchar
+000026 6E??           00284         MOVWF   r0x01
+000028 50E4           00285         MOVF    PREINC1, W
+00002A 50E4           00286         MOVF    PREINC1, W
+00002C 0E0A           00287         MOVLW   0x0a
+00002E 6EE5           00288         MOVWF   POSTDEC1
+000030 C??? F???      00289         MOVFF   r0x00, POSTDEC1
+000034 EC?? F0??      00290         CALL    __divuchar
+000038 6E??           00291         MOVWF   r0x00
+00003A 50E4           00292         MOVF    PREINC1, W
+00003C 50E4           00293         MOVF    PREINC1, W
+00003E 38??           00294         SWAPF   r0x00, W
+000040 0BF0           00295         ANDLW   0xf0
+000042 6E??           00296         MOVWF   r0x02
+000044 50??           00297         MOVF    r0x02, W
+000046 12??           00298         IORWF   r0x01, F
+000048 50??           00299         MOVF    r0x01, W
+00004A 6EE5           00300         MOVWF   POSTDEC1
+00004C 0E01           00301         MOVLW   0x01
+00004E 6EE5           00302         MOVWF   POSTDEC1
+000050 EC?? F0??      00303         CALL    _ht1380write
+000054 52E6           00304         MOVF    POSTINC1, F
+000056 52E6           00305         MOVF    POSTINC1, F
+000058 CFE4 F000      00306         MOVFF   PREINC1, r0x02
+00005C CFE4 F000      00307         MOVFF   PREINC1, r0x01
+000060 CFE4 F000      00308         MOVFF   PREINC1, r0x00
+000064 CFE4 FFD9      00309         MOVFF   PREINC1, FSR2L
+000068 0012           00310         RETURN  
+                      00311 
+                      00312 ; ; Starting pCode block
+                      00313 S_rtc__rtcPutSeconds    code
+000000                00314 _rtcPutSeconds:
+                      00315 ;       .line   204; rtc.c      void rtcPutSeconds(unsigned char seconds) {
+000000 CFD9 FFE5      00316         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00317         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00318         MOVFF   r0x00, POSTDEC1
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  7
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00000C C??? F???      00319         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00320         MOVFF   r0x02, POSTDEC1
+000014 0E02           00321         MOVLW   0x02
+000016 CFDB F000      00322         MOVFF   PLUSW2, r0x00
+                      00323 ;       .line   205; rtc.c      ht1380write(0, (seconds % 10) | ((seconds / 10) << 4));
+00001A 0E0A           00324         MOVLW   0x0a
+00001C 6EE5           00325         MOVWF   POSTDEC1
+00001E C??? F???      00326         MOVFF   r0x00, POSTDEC1
+000022 EC?? F0??      00327         CALL    __moduchar
+000026 6E??           00328         MOVWF   r0x01
+000028 50E4           00329         MOVF    PREINC1, W
+00002A 50E4           00330         MOVF    PREINC1, W
+00002C 0E0A           00331         MOVLW   0x0a
+00002E 6EE5           00332         MOVWF   POSTDEC1
+000030 C??? F???      00333         MOVFF   r0x00, POSTDEC1
+000034 EC?? F0??      00334         CALL    __divuchar
+000038 6E??           00335         MOVWF   r0x00
+00003A 50E4           00336         MOVF    PREINC1, W
+00003C 50E4           00337         MOVF    PREINC1, W
+00003E 38??           00338         SWAPF   r0x00, W
+000040 0BF0           00339         ANDLW   0xf0
+000042 6E??           00340         MOVWF   r0x02
+000044 50??           00341         MOVF    r0x02, W
+000046 12??           00342         IORWF   r0x01, F
+000048 50??           00343         MOVF    r0x01, W
+00004A 6EE5           00344         MOVWF   POSTDEC1
+00004C 0E00           00345         MOVLW   0x00
+00004E 6EE5           00346         MOVWF   POSTDEC1
+000050 EC?? F0??      00347         CALL    _ht1380write
+000054 52E6           00348         MOVF    POSTINC1, F
+000056 52E6           00349         MOVF    POSTINC1, F
+000058 CFE4 F000      00350         MOVFF   PREINC1, r0x02
+00005C CFE4 F000      00351         MOVFF   PREINC1, r0x01
+000060 CFE4 F000      00352         MOVFF   PREINC1, r0x00
+000064 CFE4 FFD9      00353         MOVFF   PREINC1, FSR2L
+000068 0012           00354         RETURN  
+                      00355 
+                      00356 ; ; Starting pCode block
+                      00357 S_rtc__rtcGetDay        code
+000000                00358 _rtcGetDay:
+                      00359 ;       .line   188; rtc.c      unsigned char rtcGetDay(void) {
+000000 CFD9 FFE5      00360         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00361         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00362         MOVFF   r0x00, POSTDEC1
+                      00363 ;       .line   190; rtc.c      value = ht1380read(5);
+00000C 0E05           00364         MOVLW   0x05
+00000E 6EE5           00365         MOVWF   POSTDEC1
+000010 EC?? F0??      00366         CALL    _ht1380read
+000014 6E??           00367         MOVWF   r0x00
+000016 52E6           00368         MOVF    POSTINC1, F
+                      00369 ;       .line   191; rtc.c      return (value & 0x0f); // 1..7
+000018 0E0F           00370         MOVLW   0x0f
+00001A 16??           00371         ANDWF   r0x00, F
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  8
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00001C 50??           00372         MOVF    r0x00, W
+00001E CFE4 F000      00373         MOVFF   PREINC1, r0x00
+000022 CFE4 FFD9      00374         MOVFF   PREINC1, FSR2L
+000026 0012           00375         RETURN  
+                      00376 
+                      00377 ; ; Starting pCode block
+                      00378 S_rtc__rtcGetYear       code
+000000                00379 _rtcGetYear:
+                      00380 ;       .line   182; rtc.c      unsigned char rtcGetYear(void) {
+000000 CFD9 FFE5      00381         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00382         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00383         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00384         MOVFF   r0x01, POSTDEC1
+                      00385 ;       .line   184; rtc.c      value = ht1380read(6);
+000010 0E06           00386         MOVLW   0x06
+000012 6EE5           00387         MOVWF   POSTDEC1
+000014 EC?? F0??      00388         CALL    _ht1380read
+000018 6E??           00389         MOVWF   r0x00
+00001A 52E6           00390         MOVF    POSTINC1, F
+                      00391 ;       .line   185; rtc.c      return (((value >> 4)&0x0f)*10 + (value & 0x0f));
+00001C 38??           00392         SWAPF   r0x00, W
+00001E 0B0F           00393         ANDLW   0x0f
+000020 6E??           00394         MOVWF   r0x01
+000022 0E0F           00395         MOVLW   0x0f
+000024 16??           00396         ANDWF   r0x01, F
+                      00397 ; ;multiply lit val:0x0a by variable r0x01 and store in r0x01
+000026 50??           00398         MOVF    r0x01, W
+000028 0D0A           00399         MULLW   0x0a
+00002A CFF3 F000      00400         MOVFF   PRODL, r0x01
+00002E 0E0F           00401         MOVLW   0x0f
+000030 16??           00402         ANDWF   r0x00, F
+000032 50??           00403         MOVF    r0x00, W
+000034 26??           00404         ADDWF   r0x01, F
+000036 50??           00405         MOVF    r0x01, W
+000038 CFE4 F000      00406         MOVFF   PREINC1, r0x01
+00003C CFE4 F000      00407         MOVFF   PREINC1, r0x00
+000040 CFE4 FFD9      00408         MOVFF   PREINC1, FSR2L
+000044 0012           00409         RETURN  
+                      00410 
+                      00411 ; ; Starting pCode block
+                      00412 S_rtc__rtcGetMonth      code
+000000                00413 _rtcGetMonth:
+                      00414 ;       .line   176; rtc.c      unsigned char rtcGetMonth(void) {
+000000 CFD9 FFE5      00415         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00416         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00417         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00418         MOVFF   r0x01, POSTDEC1
+                      00419 ;       .line   178; rtc.c      value = ht1380read(4);
+000010 0E04           00420         MOVLW   0x04
+000012 6EE5           00421         MOVWF   POSTDEC1
+000014 EC?? F0??      00422         CALL    _ht1380read
+000018 6E??           00423         MOVWF   r0x00
+00001A 52E6           00424         MOVF    POSTINC1, F
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  9
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00425 ;       .line   179; rtc.c      return (((value >> 4)&0x01)*10 + (value & 0x0f));
+00001C 50??           00426         MOVF    r0x00, W
+00001E 0B10           00427         ANDLW   0x10
+000020 38E8           00428         SWAPF   WREG, W
+000022 6E??           00429         MOVWF   r0x01
+                      00430 ; ;multiply lit val:0x0a by variable r0x01 and store in r0x01
+000024 50??           00431         MOVF    r0x01, W
+000026 0D0A           00432         MULLW   0x0a
+000028 CFF3 F000      00433         MOVFF   PRODL, r0x01
+00002C 0E0F           00434         MOVLW   0x0f
+00002E 16??           00435         ANDWF   r0x00, F
+000030 50??           00436         MOVF    r0x00, W
+000032 26??           00437         ADDWF   r0x01, F
+000034 50??           00438         MOVF    r0x01, W
+000036 CFE4 F000      00439         MOVFF   PREINC1, r0x01
+00003A CFE4 F000      00440         MOVFF   PREINC1, r0x00
+00003E CFE4 FFD9      00441         MOVFF   PREINC1, FSR2L
+000042 0012           00442         RETURN  
+                      00443 
+                      00444 ; ; Starting pCode block
+                      00445 S_rtc__rtcGetDate       code
+000000                00446 _rtcGetDate:
+                      00447 ;       .line   170; rtc.c      unsigned char rtcGetDate(void) {
+000000 CFD9 FFE5      00448         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00449         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00450         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00451         MOVFF   r0x01, POSTDEC1
+                      00452 ;       .line   172; rtc.c      value = ht1380read(3);
+000010 0E03           00453         MOVLW   0x03
+000012 6EE5           00454         MOVWF   POSTDEC1
+000014 EC?? F0??      00455         CALL    _ht1380read
+000018 6E??           00456         MOVWF   r0x00
+00001A 52E6           00457         MOVF    POSTINC1, F
+                      00458 ;       .line   173; rtc.c      return (((value >> 4)&0x03)*10 + (value & 0x0f));
+00001C 38??           00459         SWAPF   r0x00, W
+00001E 0B0F           00460         ANDLW   0x0f
+000020 6E??           00461         MOVWF   r0x01
+000022 0E03           00462         MOVLW   0x03
+000024 16??           00463         ANDWF   r0x01, F
+                      00464 ; ;multiply lit val:0x0a by variable r0x01 and store in r0x01
+000026 50??           00465         MOVF    r0x01, W
+000028 0D0A           00466         MULLW   0x0a
+00002A CFF3 F000      00467         MOVFF   PRODL, r0x01
+00002E 0E0F           00468         MOVLW   0x0f
+000030 16??           00469         ANDWF   r0x00, F
+000032 50??           00470         MOVF    r0x00, W
+000034 26??           00471         ADDWF   r0x01, F
+000036 50??           00472         MOVF    r0x01, W
+000038 CFE4 F000      00473         MOVFF   PREINC1, r0x01
+00003C CFE4 F000      00474         MOVFF   PREINC1, r0x00
+000040 CFE4 FFD9      00475         MOVFF   PREINC1, FSR2L
+000044 0012           00476         RETURN  
+                      00477 
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 10
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00478 ; ; Starting pCode block
+                      00479 S_rtc__rtcGetHours      code
+000000                00480 _rtcGetHours:
+                      00481 ;       .line   164; rtc.c      unsigned char rtcGetHours(void) {
+000000 CFD9 FFE5      00482         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00483         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00484         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00485         MOVFF   r0x01, POSTDEC1
+                      00486 ;       .line   166; rtc.c      value = ht1380read(2);
+000010 0E02           00487         MOVLW   0x02
+000012 6EE5           00488         MOVWF   POSTDEC1
+000014 EC?? F0??      00489         CALL    _ht1380read
+000018 6E??           00490         MOVWF   r0x00
+00001A 52E6           00491         MOVF    POSTINC1, F
+                      00492 ;       .line   167; rtc.c      return (((value >> 4)&0x03)*10 + (value & 0x0f));
+00001C 38??           00493         SWAPF   r0x00, W
+00001E 0B0F           00494         ANDLW   0x0f
+000020 6E??           00495         MOVWF   r0x01
+000022 0E03           00496         MOVLW   0x03
+000024 16??           00497         ANDWF   r0x01, F
+                      00498 ; ;multiply lit val:0x0a by variable r0x01 and store in r0x01
+000026 50??           00499         MOVF    r0x01, W
+000028 0D0A           00500         MULLW   0x0a
+00002A CFF3 F000      00501         MOVFF   PRODL, r0x01
+00002E 0E0F           00502         MOVLW   0x0f
+000030 16??           00503         ANDWF   r0x00, F
+000032 50??           00504         MOVF    r0x00, W
+000034 26??           00505         ADDWF   r0x01, F
+000036 50??           00506         MOVF    r0x01, W
+000038 CFE4 F000      00507         MOVFF   PREINC1, r0x01
+00003C CFE4 F000      00508         MOVFF   PREINC1, r0x00
+000040 CFE4 FFD9      00509         MOVFF   PREINC1, FSR2L
+000044 0012           00510         RETURN  
+                      00511 
+                      00512 ; ; Starting pCode block
+                      00513 S_rtc__rtcGetMinutes    code
+000000                00514 _rtcGetMinutes:
+                      00515 ;       .line   158; rtc.c      unsigned char rtcGetMinutes(void) {
+000000 CFD9 FFE5      00516         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00517         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00518         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00519         MOVFF   r0x01, POSTDEC1
+                      00520 ;       .line   160; rtc.c      value = ht1380read(1);
+000010 0E01           00521         MOVLW   0x01
+000012 6EE5           00522         MOVWF   POSTDEC1
+000014 EC?? F0??      00523         CALL    _ht1380read
+000018 6E??           00524         MOVWF   r0x00
+00001A 52E6           00525         MOVF    POSTINC1, F
+                      00526 ;       .line   161; rtc.c      return (((value >> 4)&0x07)*10 + (value & 0x0f));
+00001C 38??           00527         SWAPF   r0x00, W
+00001E 0B0F           00528         ANDLW   0x0f
+000020 6E??           00529         MOVWF   r0x01
+000022 0E07           00530         MOVLW   0x07
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 11
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000024 16??           00531         ANDWF   r0x01, F
+                      00532 ; ;multiply lit val:0x0a by variable r0x01 and store in r0x01
+000026 50??           00533         MOVF    r0x01, W
+000028 0D0A           00534         MULLW   0x0a
+00002A CFF3 F000      00535         MOVFF   PRODL, r0x01
+00002E 0E0F           00536         MOVLW   0x0f
+000030 16??           00537         ANDWF   r0x00, F
+000032 50??           00538         MOVF    r0x00, W
+000034 26??           00539         ADDWF   r0x01, F
+000036 50??           00540         MOVF    r0x01, W
+000038 CFE4 F000      00541         MOVFF   PREINC1, r0x01
+00003C CFE4 F000      00542         MOVFF   PREINC1, r0x00
+000040 CFE4 FFD9      00543         MOVFF   PREINC1, FSR2L
+000044 0012           00544         RETURN  
+                      00545 
+                      00546 ; ; Starting pCode block
+                      00547 S_rtc__rtcGetSeconds    code
+000000                00548 _rtcGetSeconds:
+                      00549 ;       .line   151; rtc.c      unsigned char rtcGetSeconds(void) {
+000000 CFD9 FFE5      00550         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00551         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00552         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00553         MOVFF   r0x01, POSTDEC1
+                      00554 ;       .line   153; rtc.c      value = ht1380read(0); // read seconds
+000010 0E00           00555         MOVLW   0x00
+000012 6EE5           00556         MOVWF   POSTDEC1
+000014 EC?? F0??      00557         CALL    _ht1380read
+000018 6E??           00558         MOVWF   r0x00
+00001A 52E6           00559         MOVF    POSTINC1, F
+                      00560 ;       .line   154; rtc.c      return (((value >> 4)&0x07)*10 + (value & 0x0f));
+00001C 38??           00561         SWAPF   r0x00, W
+00001E 0B0F           00562         ANDLW   0x0f
+000020 6E??           00563         MOVWF   r0x01
+000022 0E07           00564         MOVLW   0x07
+000024 16??           00565         ANDWF   r0x01, F
+                      00566 ; ;multiply lit val:0x0a by variable r0x01 and store in r0x01
+000026 50??           00567         MOVF    r0x01, W
+000028 0D0A           00568         MULLW   0x0a
+00002A CFF3 F000      00569         MOVFF   PRODL, r0x01
+00002E 0E0F           00570         MOVLW   0x0f
+000030 16??           00571         ANDWF   r0x00, F
+000032 50??           00572         MOVF    r0x00, W
+000034 26??           00573         ADDWF   r0x01, F
+000036 50??           00574         MOVF    r0x01, W
+000038 CFE4 F000      00575         MOVFF   PREINC1, r0x01
+00003C CFE4 F000      00576         MOVFF   PREINC1, r0x00
+000040 CFE4 FFD9      00577         MOVFF   PREINC1, FSR2L
+000044 0012           00578         RETURN  
+                      00579 
+                      00580 ; ; Starting pCode block
+                      00581 S_rtc__rtcSetDateTime   code
+000000                00582 _rtcSetDateTime:
+                      00583 ;       .line   139; rtc.c      void rtcSetDateTime(void) {
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 12
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000000 CFD9 FFE5      00584         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00585         MOVFF   FSR1L, FSR2L
+                      00586 ;       .line   141; rtc.c      ht1380write(7, 0); //disable write protection
+000008 0E00           00587         MOVLW   0x00
+00000A 6EE5           00588         MOVWF   POSTDEC1
+00000C 0E07           00589         MOVLW   0x07
+00000E 6EE5           00590         MOVWF   POSTDEC1
+000010 EC?? F0??      00591         CALL    _ht1380write
+000014 52E6           00592         MOVF    POSTINC1, F
+000016 52E6           00593         MOVF    POSTINC1, F
+                      00594 ;       .line   142; rtc.c      ht1380write(0, 0x0); //sec
+000018 0E00           00595         MOVLW   0x00
+00001A 6EE5           00596         MOVWF   POSTDEC1
+00001C 0E00           00597         MOVLW   0x00
+00001E 6EE5           00598         MOVWF   POSTDEC1
+000020 EC?? F0??      00599         CALL    _ht1380write
+000024 52E6           00600         MOVF    POSTINC1, F
+000026 52E6           00601         MOVF    POSTINC1, F
+                      00602 ;       .line   143; rtc.c      ht1380write(1, 0x21); //min
+000028 0E21           00603         MOVLW   0x21
+00002A 6EE5           00604         MOVWF   POSTDEC1
+00002C 0E01           00605         MOVLW   0x01
+00002E 6EE5           00606         MOVWF   POSTDEC1
+000030 EC?? F0??      00607         CALL    _ht1380write
+000034 52E6           00608         MOVF    POSTINC1, F
+000036 52E6           00609         MOVF    POSTINC1, F
+                      00610 ;       .line   144; rtc.c      ht1380write(2, 0x23); //hora
+000038 0E23           00611         MOVLW   0x23
+00003A 6EE5           00612         MOVWF   POSTDEC1
+00003C 0E02           00613         MOVLW   0x02
+00003E 6EE5           00614         MOVWF   POSTDEC1
+000040 EC?? F0??      00615         CALL    _ht1380write
+000044 52E6           00616         MOVF    POSTINC1, F
+000046 52E6           00617         MOVF    POSTINC1, F
+                      00618 ;       .line   145; rtc.c      ht1380write(3, 0x28); //dia
+000048 0E28           00619         MOVLW   0x28
+00004A 6EE5           00620         MOVWF   POSTDEC1
+00004C 0E03           00621         MOVLW   0x03
+00004E 6EE5           00622         MOVWF   POSTDEC1
+000050 EC?? F0??      00623         CALL    _ht1380write
+000054 52E6           00624         MOVF    POSTINC1, F
+000056 52E6           00625         MOVF    POSTINC1, F
+                      00626 ;       .line   146; rtc.c      ht1380write(4, 0x10); //mes
+000058 0E10           00627         MOVLW   0x10
+00005A 6EE5           00628         MOVWF   POSTDEC1
+00005C 0E04           00629         MOVLW   0x04
+00005E 6EE5           00630         MOVWF   POSTDEC1
+000060 EC?? F0??      00631         CALL    _ht1380write
+000064 52E6           00632         MOVF    POSTINC1, F
+000066 52E6           00633         MOVF    POSTINC1, F
+                      00634 ;       .line   147; rtc.c      ht1380write(5, 0x6); //dia semana
+000068 0E06           00635         MOVLW   0x06
+00006A 6EE5           00636         MOVWF   POSTDEC1
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 13
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00006C 0E05           00637         MOVLW   0x05
+00006E 6EE5           00638         MOVWF   POSTDEC1
+000070 EC?? F0??      00639         CALL    _ht1380write
+000074 52E6           00640         MOVF    POSTINC1, F
+000076 52E6           00641         MOVF    POSTINC1, F
+                      00642 ;       .line   148; rtc.c      ht1380write(6, 0x12); //ano
+000078 0E12           00643         MOVLW   0x12
+00007A 6EE5           00644         MOVWF   POSTDEC1
+00007C 0E06           00645         MOVLW   0x06
+00007E 6EE5           00646         MOVWF   POSTDEC1
+000080 EC?? F0??      00647         CALL    _ht1380write
+000084 52E6           00648         MOVF    POSTINC1, F
+000086 52E6           00649         MOVF    POSTINC1, F
+000088 CFE4 FFD9      00650         MOVFF   PREINC1, FSR2L
+00008C 0012           00651         RETURN  
+                      00652 
+                      00653 ; ; Starting pCode block
+                      00654 S_rtc__ht1380read       code
+000000                00655 _ht1380read:
+                      00656 ;       .line   119; rtc.c      unsigned char ht1380read(unsigned char addr) {
+000000 CFD9 FFE5      00657         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00658         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00659         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00660         MOVFF   r0x01, POSTDEC1
+000010 0E02           00661         MOVLW   0x02
+000012 CFDB F000      00662         MOVFF   PLUSW2, r0x00
+                      00663 ;       .line   121; rtc.c      RESET_OFF();
+000016 EE0F F082      00664         LFSR    0x00, 0xf82
+00001A CFEF F000      00665         MOVFF   INDF0, r0x01
+00001E 9A??           00666         BCF     r0x01, 5
+000020 EE0F F082      00667         LFSR    0x00, 0xf82
+000024 C??? F???      00668         MOVFF   r0x01, INDF0
+                      00669 ;       .line   122; rtc.c      SCL_OFF();
+000028 EE0F F082      00670         LFSR    0x00, 0xf82
+00002C CFEF F000      00671         MOVFF   INDF0, r0x01
+000030 96??           00672         BCF     r0x01, 3
+000032 EE0F F082      00673         LFSR    0x00, 0xf82
+000036 C??? F???      00674         MOVFF   r0x01, INDF0
+                      00675 ;       .line   123; rtc.c      SDA_OFF();
+00003A EE0F F082      00676         LFSR    0x00, 0xf82
+00003E CFEF F000      00677         MOVFF   INDF0, r0x01
+000042 98??           00678         BCF     r0x01, 4
+000044 EE0F F082      00679         LFSR    0x00, 0xf82
+000048 C??? F???      00680         MOVFF   r0x01, INDF0
+                      00681 ;       .line   125; rtc.c      RESET_ON();
+00004C EE0F F082      00682         LFSR    0x00, 0xf82
+000050 CFEF F000      00683         MOVFF   INDF0, r0x01
+000054 8A??           00684         BSF     r0x01, 5
+000056 EE0F F082      00685         LFSR    0x00, 0xf82
+00005A C??? F???      00686         MOVFF   r0x01, INDF0
+                      00687 ;       .line   126; rtc.c      addr <<= 1;   //corrige endere?o
+00005E 90D8           00688         BCF     STATUS, 0
+000060 36??           00689         RLCF    r0x00, F
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 14
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00690 ;       .line   127; rtc.c      addr |= 0x81; //liga bit de leitura e hab. clk
+000062 0E81           00691         MOVLW   0x81
+000064 12??           00692         IORWF   r0x00, F
+                      00693 ;       .line   128; rtc.c      writeByte(addr);
+000066 50??           00694         MOVF    r0x00, W
+000068 6EE5           00695         MOVWF   POSTDEC1
+00006A EC?? F0??      00696         CALL    _writeByte
+00006E 52E6           00697         MOVF    POSTINC1, F
+                      00698 ;       .line   129; rtc.c      SDA_IN();
+000070 EE0F F094      00699         LFSR    0x00, 0xf94
+000074 CFEF F000      00700         MOVFF   INDF0, r0x00
+000078 88??           00701         BSF     r0x00, 4
+00007A EE0F F094      00702         LFSR    0x00, 0xf94
+00007E C??? F???      00703         MOVFF   r0x00, INDF0
+                      00704 ;       .line   130; rtc.c      DELAY();DELAY();DELAY();DELAY();
+000082 0E64           00705         MOVLW   0x64
+000084 ????           00706         BANKSEL _de
+000086 6F??           00707         MOVWF   _de, B
+000088                00708 _00217_DS_:
+000088 ????           00709         BANKSEL _de
+00008A 07??           00710         DECF    _de, F, B
+00008C ????           00711         BANKSEL _de
+00008E 51??           00712         MOVF    _de, W, B
+000090 E1??           00713         BNZ     _00217_DS_
+000092 0E64           00714         MOVLW   0x64
+000094 ????           00715         BANKSEL _de
+000096 6F??           00716         MOVWF   _de, B
+000098                00717 _00220_DS_:
+000098 ????           00718         BANKSEL _de
+00009A 07??           00719         DECF    _de, F, B
+00009C ????           00720         BANKSEL _de
+00009E 51??           00721         MOVF    _de, W, B
+0000A0 E1??           00722         BNZ     _00220_DS_
+0000A2 0E64           00723         MOVLW   0x64
+0000A4 ????           00724         BANKSEL _de
+0000A6 6F??           00725         MOVWF   _de, B
+0000A8                00726 _00223_DS_:
+0000A8 ????           00727         BANKSEL _de
+0000AA 07??           00728         DECF    _de, F, B
+0000AC ????           00729         BANKSEL _de
+0000AE 51??           00730         MOVF    _de, W, B
+0000B0 E1??           00731         BNZ     _00223_DS_
+0000B2 0E64           00732         MOVLW   0x64
+0000B4 ????           00733         BANKSEL _de
+0000B6 6F??           00734         MOVWF   _de, B
+0000B8                00735 _00226_DS_:
+0000B8 ????           00736         BANKSEL _de
+0000BA 07??           00737         DECF    _de, F, B
+0000BC ????           00738         BANKSEL _de
+0000BE 51??           00739         MOVF    _de, W, B
+0000C0 E1??           00740         BNZ     _00226_DS_
+0000C2 0E64           00741         MOVLW   0x64
+0000C4 ????           00742         BANKSEL _de
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 15
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000C6 6F??           00743         MOVWF   _de, B
+                      00744 ;       .line   131; rtc.c      dados = readByte();
+0000C8 EC?? F0??      00745         CALL    _readByte
+0000CC 6E??           00746         MOVWF   r0x00
+                      00747 ;       .line   132; rtc.c      RESET_OFF();
+0000CE EE0F F082      00748         LFSR    0x00, 0xf82
+0000D2 CFEF F000      00749         MOVFF   INDF0, r0x01
+0000D6 9A??           00750         BCF     r0x01, 5
+0000D8 EE0F F082      00751         LFSR    0x00, 0xf82
+0000DC C??? F???      00752         MOVFF   r0x01, INDF0
+                      00753 ;       .line   133; rtc.c      SCL_OFF();
+0000E0 EE0F F082      00754         LFSR    0x00, 0xf82
+0000E4 CFEF F000      00755         MOVFF   INDF0, r0x01
+0000E8 96??           00756         BCF     r0x01, 3
+0000EA EE0F F082      00757         LFSR    0x00, 0xf82
+0000EE C??? F???      00758         MOVFF   r0x01, INDF0
+                      00759 ;       .line   134; rtc.c      SDA_OFF();
+0000F2 EE0F F082      00760         LFSR    0x00, 0xf82
+0000F6 CFEF F000      00761         MOVFF   INDF0, r0x01
+0000FA 98??           00762         BCF     r0x01, 4
+0000FC EE0F F082      00763         LFSR    0x00, 0xf82
+000100 C??? F???      00764         MOVFF   r0x01, INDF0
+                      00765 ;       .line   135; rtc.c      SDA_OUT();
+000104 EE0F F094      00766         LFSR    0x00, 0xf94
+000108 CFEF F000      00767         MOVFF   INDF0, r0x01
+00010C 98??           00768         BCF     r0x01, 4
+00010E EE0F F094      00769         LFSR    0x00, 0xf94
+000112 C??? F???      00770         MOVFF   r0x01, INDF0
+                      00771 ;       .line   136; rtc.c      return dados;
+000116 50??           00772         MOVF    r0x00, W
+000118 CFE4 F000      00773         MOVFF   PREINC1, r0x01
+00011C CFE4 F000      00774         MOVFF   PREINC1, r0x00
+000120 CFE4 FFD9      00775         MOVFF   PREINC1, FSR2L
+000124 0012           00776         RETURN  
+                      00777 
+                      00778 ; ; Starting pCode block
+                      00779 S_rtc__ht1380write      code
+000000                00780 _ht1380write:
+                      00781 ;       .line   102; rtc.c      void ht1380write(unsigned char addr, unsigned char dados) {
+000000 CFD9 FFE5      00782         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00783         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00784         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00785         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00786         MOVFF   r0x02, POSTDEC1
+000014 0E02           00787         MOVLW   0x02
+000016 CFDB F000      00788         MOVFF   PLUSW2, r0x00
+00001A 0E03           00789         MOVLW   0x03
+00001C CFDB F000      00790         MOVFF   PLUSW2, r0x01
+                      00791 ;       .line   103; rtc.c      RESET_OFF();
+000020 EE0F F082      00792         LFSR    0x00, 0xf82
+000024 CFEF F000      00793         MOVFF   INDF0, r0x02
+000028 9A??           00794         BCF     r0x02, 5
+00002A EE0F F082      00795         LFSR    0x00, 0xf82
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 16
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00002E C??? F???      00796         MOVFF   r0x02, INDF0
+                      00797 ;       .line   104; rtc.c      SCL_OFF();
+000032 EE0F F082      00798         LFSR    0x00, 0xf82
+000036 CFEF F000      00799         MOVFF   INDF0, r0x02
+00003A 96??           00800         BCF     r0x02, 3
+00003C EE0F F082      00801         LFSR    0x00, 0xf82
+000040 C??? F???      00802         MOVFF   r0x02, INDF0
+                      00803 ;       .line   105; rtc.c      SDA_OFF();
+000044 EE0F F082      00804         LFSR    0x00, 0xf82
+000048 CFEF F000      00805         MOVFF   INDF0, r0x02
+00004C 98??           00806         BCF     r0x02, 4
+00004E EE0F F082      00807         LFSR    0x00, 0xf82
+000052 C??? F???      00808         MOVFF   r0x02, INDF0
+                      00809 ;       .line   108; rtc.c      RESET_ON();
+000056 EE0F F082      00810         LFSR    0x00, 0xf82
+00005A CFEF F000      00811         MOVFF   INDF0, r0x02
+00005E 8A??           00812         BSF     r0x02, 5
+000060 EE0F F082      00813         LFSR    0x00, 0xf82
+000064 C??? F???      00814         MOVFF   r0x02, INDF0
+                      00815 ;       .line   110; rtc.c      addr <<= 1;   //corrige endere?o
+000068 90D8           00816         BCF     STATUS, 0
+00006A 36??           00817         RLCF    r0x00, F
+                      00818 ;       .line   111; rtc.c      addr |= 0x80; //habilita clock
+00006C 8E??           00819         BSF     r0x00, 7
+                      00820 ;       .line   112; rtc.c      writeByte(addr);
+00006E 50??           00821         MOVF    r0x00, W
+000070 6EE5           00822         MOVWF   POSTDEC1
+000072 EC?? F0??      00823         CALL    _writeByte
+000076 52E6           00824         MOVF    POSTINC1, F
+                      00825 ;       .line   113; rtc.c      writeByte(dados);
+000078 50??           00826         MOVF    r0x01, W
+00007A 6EE5           00827         MOVWF   POSTDEC1
+00007C EC?? F0??      00828         CALL    _writeByte
+000080 52E6           00829         MOVF    POSTINC1, F
+                      00830 ;       .line   114; rtc.c      RESET_OFF();
+000082 EE0F F082      00831         LFSR    0x00, 0xf82
+000086 CFEF F000      00832         MOVFF   INDF0, r0x00
+00008A 9A??           00833         BCF     r0x00, 5
+00008C EE0F F082      00834         LFSR    0x00, 0xf82
+000090 C??? F???      00835         MOVFF   r0x00, INDF0
+                      00836 ;       .line   115; rtc.c      SCL_OFF();
+000094 EE0F F082      00837         LFSR    0x00, 0xf82
+000098 CFEF F000      00838         MOVFF   INDF0, r0x00
+00009C 96??           00839         BCF     r0x00, 3
+00009E EE0F F082      00840         LFSR    0x00, 0xf82
+0000A2 C??? F???      00841         MOVFF   r0x00, INDF0
+                      00842 ;       .line   116; rtc.c      SDA_OFF();
+0000A6 EE0F F082      00843         LFSR    0x00, 0xf82
+0000AA CFEF F000      00844         MOVFF   INDF0, r0x00
+0000AE 98??           00845         BCF     r0x00, 4
+0000B0 EE0F F082      00846         LFSR    0x00, 0xf82
+0000B4 C??? F???      00847         MOVFF   r0x00, INDF0
+0000B8 CFE4 F000      00848         MOVFF   PREINC1, r0x02
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 17
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000BC CFE4 F000      00849         MOVFF   PREINC1, r0x01
+0000C0 CFE4 F000      00850         MOVFF   PREINC1, r0x00
+0000C4 CFE4 FFD9      00851         MOVFF   PREINC1, FSR2L
+0000C8 0012           00852         RETURN  
+                      00853 
+                      00854 ; ; Starting pCode block
+                      00855 S_rtc__readByte code
+000000                00856 _readByte:
+                      00857 ;       .line   82; rtc.c       unsigned char readByte() {
+000000 CFD9 FFE5      00858         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00859         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00860         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00861         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00862         MOVFF   r0x02, POSTDEC1
+                      00863 ;       .line   85; rtc.c       dados = 0;
+000014 6A??           00864         CLRF    r0x00
+                      00865 ;       .line   86; rtc.c       for (i = 0; i < 8; i++) {
+000016 6A??           00866         CLRF    r0x01
+000018                00867 _00171_DS_:
+                      00868 ;       .line   87; rtc.c       SCL_ON();
+000018 EE0F F082      00869         LFSR    0x00, 0xf82
+00001C CFEF F000      00870         MOVFF   INDF0, r0x02
+000020 86??           00871         BSF     r0x02, 3
+000022 EE0F F082      00872         LFSR    0x00, 0xf82
+000026 C??? F???      00873         MOVFF   r0x02, INDF0
+                      00874 ;       .line   88; rtc.c       DELAY();
+00002A 0E64           00875         MOVLW   0x64
+00002C ????           00876         BANKSEL _de
+00002E 6F??           00877         MOVWF   _de, B
+000030                00878 _00167_DS_:
+000030 ????           00879         BANKSEL _de
+000032 07??           00880         DECF    _de, F, B
+000034 ????           00881         BANKSEL _de
+000036 51??           00882         MOVF    _de, W, B
+000038 E1??           00883         BNZ     _00167_DS_
+00003A 0E64           00884         MOVLW   0x64
+00003C ????           00885         BANKSEL _de
+00003E 6F??           00886         MOVWF   _de, B
+                      00887 ;       .line   90; rtc.c       dados >>= 1;
+000040 90D8           00888         BCF     STATUS, 0
+000042 32??           00889         RRCF    r0x00, F
+                      00890 ;       .line   92; rtc.c       if (SDA()) {
+000044 EE0F F082      00891         LFSR    0x00, 0xf82
+000048 CFEF F000      00892         MOVFF   INDF0, r0x02
+00004C A8??           00893         BTFSS   r0x02, 4
+00004E D???           00894         BRA     _00162_DS_
+                      00895 ;       .line   93; rtc.c       dados |= 0x80;
+000050 8E??           00896         BSF     r0x00, 7
+000052                00897 _00162_DS_:
+                      00898 ;       .line   96; rtc.c       SCL_OFF();
+000052 EE0F F082      00899         LFSR    0x00, 0xf82
+000056 CFEF F000      00900         MOVFF   INDF0, r0x02
+00005A 96??           00901         BCF     r0x02, 3
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 18
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00005C EE0F F082      00902         LFSR    0x00, 0xf82
+000060 C??? F???      00903         MOVFF   r0x02, INDF0
+                      00904 ;       .line   97; rtc.c       DELAY();
+000064 0E64           00905         MOVLW   0x64
+000066 ????           00906         BANKSEL _de
+000068 6F??           00907         MOVWF   _de, B
+00006A                00908 _00170_DS_:
+00006A ????           00909         BANKSEL _de
+00006C 07??           00910         DECF    _de, F, B
+00006E ????           00911         BANKSEL _de
+000070 51??           00912         MOVF    _de, W, B
+000072 E1??           00913         BNZ     _00170_DS_
+000074 0E64           00914         MOVLW   0x64
+000076 ????           00915         BANKSEL _de
+000078 6F??           00916         MOVWF   _de, B
+                      00917 ;       .line   86; rtc.c       for (i = 0; i < 8; i++) {
+00007A 2A??           00918         INCF    r0x01, F
+00007C 0E08           00919         MOVLW   0x08
+00007E 5C??           00920         SUBWF   r0x01, W
+000080 A0D8           00921         BTFSS   STATUS, 0
+000082 D???           00922         BRA     _00171_DS_
+                      00923 ;       .line   99; rtc.c       return dados;
+000084 50??           00924         MOVF    r0x00, W
+000086 CFE4 F000      00925         MOVFF   PREINC1, r0x02
+00008A CFE4 F000      00926         MOVFF   PREINC1, r0x01
+00008E CFE4 F000      00927         MOVFF   PREINC1, r0x00
+000092 CFE4 FFD9      00928         MOVFF   PREINC1, FSR2L
+000096 0012           00929         RETURN  
+                      00930 
+                      00931 ; ; Starting pCode block
+                      00932 S_rtc__writeByte        code
+000000                00933 _writeByte:
+                      00934 ;       .line   61; rtc.c       void writeByte(unsigned char dados) {
+000000 CFD9 FFE5      00935         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00936         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00937         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00938         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00939         MOVFF   r0x02, POSTDEC1
+000014 0E02           00940         MOVLW   0x02
+000016 CFDB F000      00941         MOVFF   PLUSW2, r0x00
+                      00942 ;       .line   63; rtc.c       for (i = 0; i < 8; i++) {
+00001A 6A??           00943         CLRF    r0x01
+00001C                00944 _00127_DS_:
+                      00945 ;       .line   65; rtc.c       if (dados & 0x01) {
+00001C A0??           00946         BTFSS   r0x00, 0
+00001E D???           00947         BRA     _00116_DS_
+                      00948 ;       .line   66; rtc.c       SDA_ON();
+000020 EE0F F082      00949         LFSR    0x00, 0xf82
+000024 CFEF F000      00950         MOVFF   INDF0, r0x02
+000028 88??           00951         BSF     r0x02, 4
+00002A EE0F F082      00952         LFSR    0x00, 0xf82
+00002E C??? F???      00953         MOVFF   r0x02, INDF0
+000032 D???           00954         BRA     _00117_DS_
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 19
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000034                00955 _00116_DS_:
+                      00956 ;       .line   68; rtc.c       SDA_OFF();
+000034 EE0F F082      00957         LFSR    0x00, 0xf82
+000038 CFEF F000      00958         MOVFF   INDF0, r0x02
+00003C 98??           00959         BCF     r0x02, 4
+00003E EE0F F082      00960         LFSR    0x00, 0xf82
+000042 C??? F???      00961         MOVFF   r0x02, INDF0
+000046                00962 _00117_DS_:
+                      00963 ;       .line   71; rtc.c       dados >>= 1;
+000046 90D8           00964         BCF     STATUS, 0
+000048 32??           00965         RRCF    r0x00, F
+                      00966 ;       .line   73; rtc.c       SCL_ON();
+00004A EE0F F082      00967         LFSR    0x00, 0xf82
+00004E CFEF F000      00968         MOVFF   INDF0, r0x02
+000052 86??           00969         BSF     r0x02, 3
+000054 EE0F F082      00970         LFSR    0x00, 0xf82
+000058 C??? F???      00971         MOVFF   r0x02, INDF0
+                      00972 ;       .line   74; rtc.c       DELAY();
+00005C 0E64           00973         MOVLW   0x64
+00005E ????           00974         BANKSEL _de
+000060 6F??           00975         MOVWF   _de, B
+000062                00976 _00123_DS_:
+000062 ????           00977         BANKSEL _de
+000064 07??           00978         DECF    _de, F, B
+000066 ????           00979         BANKSEL _de
+000068 51??           00980         MOVF    _de, W, B
+00006A E1??           00981         BNZ     _00123_DS_
+                      00982 ;       .line   76; rtc.c       SCL_OFF();
+00006C EE0F F082      00983         LFSR    0x00, 0xf82
+000070 CFEF F000      00984         MOVFF   INDF0, r0x02
+000074 96??           00985         BCF     r0x02, 3
+000076 EE0F F082      00986         LFSR    0x00, 0xf82
+00007A C??? F???      00987         MOVFF   r0x02, INDF0
+                      00988 ;       .line   77; rtc.c       DELAY();
+00007E 0E64           00989         MOVLW   0x64
+000080 ????           00990         BANKSEL _de
+000082 6F??           00991         MOVWF   _de, B
+000084                00992 _00126_DS_:
+000084 ????           00993         BANKSEL _de
+000086 07??           00994         DECF    _de, F, B
+000088 ????           00995         BANKSEL _de
+00008A 51??           00996         MOVF    _de, W, B
+00008C E1??           00997         BNZ     _00126_DS_
+00008E 0E64           00998         MOVLW   0x64
+000090 ????           00999         BANKSEL _de
+000092 6F??           01000         MOVWF   _de, B
+                      01001 ;       .line   63; rtc.c       for (i = 0; i < 8; i++) {
+000094 2A??           01002         INCF    r0x01, F
+000096 0E08           01003         MOVLW   0x08
+000098 5C??           01004         SUBWF   r0x01, W
+00009A A0D8           01005         BTFSS   STATUS, 0
+00009C D???           01006         BRA     _00127_DS_
+00009E CFE4 F000      01007         MOVFF   PREINC1, r0x02
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 20
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000A2 CFE4 F000      01008         MOVFF   PREINC1, r0x01
+0000A6 CFE4 F000      01009         MOVFF   PREINC1, r0x00
+0000AA CFE4 FFD9      01010         MOVFF   PREINC1, FSR2L
+0000AE 0012           01011         RETURN  
+                      01012 
+                      01013 ; ; Starting pCode block
+                      01014 S_rtc__rtcStart code
+000000                01015 _rtcStart:
+                      01016 ;       .line   53; rtc.c       void rtcStart() {
+000000 CFD9 FFE5      01017         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      01018         MOVFF   FSR1L, FSR2L
+000008 C??? F???      01019         MOVFF   r0x00, POSTDEC1
+                      01020 ;       .line   55; rtc.c       RESET_OUT();
+00000C EE0F F094      01021         LFSR    0x00, 0xf94
+000010 CFEF F000      01022         MOVFF   INDF0, r0x00
+000014 9A??           01023         BCF     r0x00, 5
+000016 EE0F F094      01024         LFSR    0x00, 0xf94
+00001A C??? F???      01025         MOVFF   r0x00, INDF0
+                      01026 ;       .line   56; rtc.c       SDA_OUT();
+00001E EE0F F094      01027         LFSR    0x00, 0xf94
+000022 CFEF F000      01028         MOVFF   INDF0, r0x00
+000026 98??           01029         BCF     r0x00, 4
+000028 EE0F F094      01030         LFSR    0x00, 0xf94
+00002C C??? F???      01031         MOVFF   r0x00, INDF0
+                      01032 ;       .line   57; rtc.c       SCL_OUT();
+000030 EE0F F094      01033         LFSR    0x00, 0xf94
+000034 CFEF F000      01034         MOVFF   INDF0, r0x00
+000038 96??           01035         BCF     r0x00, 3
+00003A EE0F F094      01036         LFSR    0x00, 0xf94
+00003E C??? F???      01037         MOVFF   r0x00, INDF0
+                      01038 ;       .line   58; rtc.c       BitClr(INTCON2, 7); //liga pull up
+000042 EE0F F0F1      01039         LFSR    0x00, 0xff1
+000046 CFEF F000      01040         MOVFF   INDF0, r0x00
+00004A 9E??           01041         BCF     r0x00, 7
+00004C EE0F F0F1      01042         LFSR    0x00, 0xff1
+000050 C??? F???      01043         MOVFF   r0x00, INDF0
+000054 CFE4 F000      01044         MOVFF   PREINC1, r0x00
+000058 CFE4 FFD9      01045         MOVFF   PREINC1, FSR2L
+00005C 0012           01046         RETURN  
+                      01047 
+                      01048 ; ; Starting pCode block
+                      01049 S_rtc__rtcInit  code
+000000                01050 _rtcInit:
+                      01051 ;       .line   46; rtc.c       void rtcInit() {
+000000 CFD9 FFE5      01052         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      01053         MOVFF   FSR1L, FSR2L
+000008 C??? F???      01054         MOVFF   r0x00, POSTDEC1
+                      01055 ;       .line   48; rtc.c       RESET_OUT();
+00000C EE0F F094      01056         LFSR    0x00, 0xf94
+000010 CFEF F000      01057         MOVFF   INDF0, r0x00
+000014 9A??           01058         BCF     r0x00, 5
+000016 EE0F F094      01059         LFSR    0x00, 0xf94
+00001A C??? F???      01060         MOVFF   r0x00, INDF0
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 21
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      01061 ;       .line   49; rtc.c       SDA_OUT();
+00001E EE0F F094      01062         LFSR    0x00, 0xf94
+000022 CFEF F000      01063         MOVFF   INDF0, r0x00
+000026 98??           01064         BCF     r0x00, 4
+000028 EE0F F094      01065         LFSR    0x00, 0xf94
+00002C C??? F???      01066         MOVFF   r0x00, INDF0
+                      01067 ;       .line   50; rtc.c       SCL_OUT();
+000030 EE0F F094      01068         LFSR    0x00, 0xf94
+000034 CFEF F000      01069         MOVFF   INDF0, r0x00
+000038 96??           01070         BCF     r0x00, 3
+00003A EE0F F094      01071         LFSR    0x00, 0xf94
+00003E C??? F???      01072         MOVFF   r0x00, INDF0
+000042 CFE4 F000      01073         MOVFF   PREINC1, r0x00
+000046 CFE4 FFD9      01074         MOVFF   PREINC1, FSR2L
+00004A 0012           01075         RETURN  
+                      01076 
+                      01077 
+                      01078 
+                      01079 ; Statistics:
+                      01080 ; code size:     2274 (0x08e2) bytes ( 1.73%)
+                      01081 ;                1137 (0x0471) words
+                      01082 ; udata size:       1 (0x0001) bytes ( 0.08%)
+                      01083 ; access size:      3 (0x0003) bytes
+                      01084 
+                      01085 
+                      01086         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 22
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+POSTINC1                          00000FE6
+PREINC1                           00000FE4
+PRODL                             00000FF3
+STATUS                            00000FD8
+WREG                              00000FE8
+_00116_DS_                        00000034
+_00117_DS_                        00000046
+_00123_DS_                        00000062
+_00126_DS_                        00000084
+_00127_DS_                        0000001C
+_00162_DS_                        00000052
+_00167_DS_                        00000030
+_00170_DS_                        0000006A
+_00171_DS_                        00000018
+_00217_DS_                        00000088
+_00220_DS_                        00000098
+_00223_DS_                        000000A8
+_00226_DS_                        000000B8
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+__divuchar                        00000000
+__moduchar                        00000000
+_de                               00000000
+_ht1380read                       00000000
+_ht1380write                      00000000
+_readByte                         00000000
+_rtcGetDate                       00000000
+_rtcGetDay                        00000000
+_rtcGetHours                      00000000
+_rtcGetMinutes                    00000000
+_rtcGetMonth                      00000000
+_rtcGetSeconds                    00000000
+_rtcGetYear                       00000000
+_rtcInit                          00000000
+_rtcPutDate                       00000000
+_rtcPutDay                        00000000
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE 23
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_rtcPutHours                      00000000
+_rtcPutMinutes                    00000000
+_rtcPutMonth                      00000000
+_rtcPutSeconds                    00000000
+_rtcPutYear                       00000000
+_rtcSetDateTime                   00000000
+_rtcStart                         00000000
+_writeByte                        00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

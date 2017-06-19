@@ -1,0 +1,393 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _kpRead
+  0000                00015         global  _kpDebounce
+  0000                00016         global  _kpInit
+                      00017 
+                      00018 ;--------------------------------------------------------
+                      00019 ;       Equates to used internal registers
+                      00020 ;--------------------------------------------------------
+  00000FD8            00021 STATUS  equ     0xfd8
+  00000FE8            00022 WREG    equ     0xfe8
+  00000FE1            00023 FSR1L   equ     0xfe1
+  00000FD9            00024 FSR2L   equ     0xfd9
+  00000FEF            00025 INDF0   equ     0xfef
+  00000FE5            00026 POSTDEC1        equ     0xfe5
+  00000FE4            00027 PREINC1 equ     0xfe4
+                      00028 
+                      00029 
+                      00030         idata
+000000 00             00031 _valor  db      0x00
+000001 00             00032 _kpDebounce_valorNovo_1_7       db      0x00
+000002 00             00033 _kpDebounce_valorAntigo_1_7     db      0x00
+                      00034 
+                      00035 
+                      00036 ; Internal registers
+                      00037 .registers      udata_ovr       0x0000
+000000                00038 r0x00   res     1
+000001                00039 r0x01   res     1
+000002                00040 r0x02   res     1
+000003                00041 r0x03   res     1
+000004                00042 r0x04   res     1
+000005                00043 r0x05   res     1
+000006                00044 r0x06   res     1
+000007                00045 r0x07   res     1
+000008                00046 r0x08   res     1
+000009                00047 r0x09   res     1
+                      00048 
+                      00049 udata_keypad_0  udata
+000000                00050 _kpDebounce_tempo_1_7   res     1
+                      00051 
+                      00052 ;--------------------------------------------------------
+                      00053 ; global & static initialisations
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00054 ;--------------------------------------------------------
+                      00055 ; I code from now on!
+                      00056 ; ; Starting pCode block
+                      00057 S_keypad__kpInit        code
+000000                00058 _kpInit:
+                      00059 ;       .line   59; keypad.c    void kpInit(void) {
+000000 CFD9 FFE5      00060         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00061         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00062         MOVFF   r0x00, POSTDEC1
+                      00063 ;       .line   60; keypad.c    TRISB = 0xF0; //quatro entradas e quatro saidas
+00000C EE0F F093      00064         LFSR    0x00, 0xf93
+000010 0EF0           00065         MOVLW   0xf0
+000012 6EEF           00066         MOVWF   INDF0
+                      00067 ;       .line   61; keypad.c    BitClr(INTCON2, 7); //liga pull up
+000014 EE0F F0F1      00068         LFSR    0x00, 0xff1
+000018 CFEF F000      00069         MOVFF   INDF0, r0x00
+00001C 9E??           00070         BCF     r0x00, 7
+00001E EE0F F0F1      00071         LFSR    0x00, 0xff1
+000022 C??? F???      00072         MOVFF   r0x00, INDF0
+                      00073 ;       .line   62; keypad.c    ADCON1 = 0b00001110; //apenas AN0 é analogico, a referencia é baseada na
+                             fonte
+000026 EE0F F0C1      00074         LFSR    0x00, 0xfc1
+00002A 0E0E           00075         MOVLW   0x0e
+00002C 6EEF           00076         MOVWF   INDF0
+00002E CFE4 F000      00077         MOVFF   PREINC1, r0x00
+000032 CFE4 FFD9      00078         MOVFF   PREINC1, FSR2L
+000036 0012           00079         RETURN  
+                      00080 
+                      00081 ; ; Starting pCode block
+                      00082 S_keypad__kpDebounce    code
+000000                00083 _kpDebounce:
+                      00084 ;       .line   29; keypad.c    void kpDebounce(void) {
+000000 CFD9 FFE5      00085         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00086         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00087         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00088         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00089         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00090         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00091         MOVFF   r0x04, POSTDEC1
+00001C C??? F???      00092         MOVFF   r0x05, POSTDEC1
+000020 C??? F???      00093         MOVFF   r0x06, POSTDEC1
+000024 C??? F???      00094         MOVFF   r0x07, POSTDEC1
+000028 C??? F???      00095         MOVFF   r0x08, POSTDEC1
+00002C C??? F???      00096         MOVFF   r0x09, POSTDEC1
+                      00097 ;       .line   35; keypad.c    for (i = 0; i < 4; i++) {
+000030 6A??           00098         CLRF    r0x00
+000032 6A??           00099         CLRF    r0x01
+000034 6A??           00100         CLRF    r0x02
+000036                00101 _00122_DS_:
+                      00102 ;       .line   36; keypad.c    TRISB = ~((unsigned char)1<<i);
+000036 0E01           00103         MOVLW   0x01
+000038 6E??           00104         MOVWF   r0x03
+00003A 50??           00105         MOVF    r0x00, W
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00003C E0??           00106         BZ      _00149_DS_
+00003E 6CE8           00107         NEGF    WREG
+000040 90D8           00108         BCF     STATUS, 0
+000042                00109 _00150_DS_:
+000042 36??           00110         RLCF    r0x03, F
+000044 0F01           00111         ADDLW   0x01
+000046 E3??           00112         BNC     _00150_DS_
+000048                00113 _00149_DS_:
+000048 1E??           00114         COMF    r0x03, F
+00004A EE0F F093      00115         LFSR    0x00, 0xf93
+00004E C??? F???      00116         MOVFF   r0x03, INDF0
+                      00117 ;       .line   37; keypad.c    PORTB = ~((unsigned char)1<<i);
+000052 EE0F F081      00118         LFSR    0x00, 0xf81
+000056 C??? F???      00119         MOVFF   r0x03, INDF0
+                      00120 ;       .line   40; keypad.c    for (j = 0; j < 2; j++) {
+00005A 6A??           00121         CLRF    r0x03
+00005C                00122 _00120_DS_:
+                      00123 ;       .line   41; keypad.c    if (!BitTst(PORTB, j + 4)) {
+00005C EE0F F081      00124         LFSR    0x00, 0xf81
+000060 CFEF F000      00125         MOVFF   INDF0, r0x04
+000064 C??? F???      00126         MOVFF   r0x03, r0x05
+000068 6A??           00127         CLRF    r0x06
+00006A 0E04           00128         MOVLW   0x04
+00006C 26??           00129         ADDWF   r0x05, F
+00006E B0D8           00130         BTFSC   STATUS, 0
+000070 2A??           00131         INCF    r0x06, F
+000072 0E01           00132         MOVLW   0x01
+000074 6E??           00133         MOVWF   r0x07
+000076 0E00           00134         MOVLW   0x00
+000078 6E??           00135         MOVWF   r0x08
+00007A 50??           00136         MOVF    r0x05, W
+00007C E0??           00137         BZ      _00151_DS_
+00007E E6??           00138         BN      _00154_DS_
+000080 6CE8           00139         NEGF    WREG
+000082 90D8           00140         BCF     STATUS, 0
+000084                00141 _00152_DS_:
+000084 36??           00142         RLCF    r0x07, F
+000086 36??           00143         RLCF    r0x08, F
+000088 0F01           00144         ADDLW   0x01
+00008A E3??           00145         BNC     _00152_DS_
+00008C D???           00146         BRA     _00151_DS_
+00008E                00147 _00154_DS_:
+00008E 90D8           00148         BCF     STATUS, 0
+000090                00149 _00153_DS_:
+000090 BE??           00150         BTFSC   r0x08, 7
+000092 80D8           00151         BSF     STATUS, 0
+000094 32??           00152         RRCF    r0x08, F
+000096 32??           00153         RRCF    r0x07, F
+000098 0F01           00154         ADDLW   0x01
+00009A E3??           00155         BNC     _00153_DS_
+00009C                00156 _00151_DS_:
+00009C 6A??           00157         CLRF    r0x09
+00009E 50??           00158         MOVF    r0x04, W
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000A0 16??           00159         ANDWF   r0x07, F
+0000A2 50??           00160         MOVF    r0x09, W
+0000A4 16??           00161         ANDWF   r0x08, F
+0000A6 50??           00162         MOVF    r0x07, W
+0000A8 10??           00163         IORWF   r0x08, W
+0000AA E1??           00164         BNZ     _00111_DS_
+                      00165 ;       .line   42; keypad.c    BitSet(valorNovo, (i * 2) + j);
+0000AC 50??           00166         MOVF    r0x03, W
+0000AE 24??           00167         ADDWF   r0x02, W
+0000B0 6E??           00168         MOVWF   r0x04
+0000B2 0E01           00169         MOVLW   0x01
+0000B4 6E??           00170         MOVWF   r0x05
+0000B6 50??           00171         MOVF    r0x04, W
+0000B8 E0??           00172         BZ      _00155_DS_
+0000BA 6CE8           00173         NEGF    WREG
+0000BC 90D8           00174         BCF     STATUS, 0
+0000BE                00175 _00156_DS_:
+0000BE 36??           00176         RLCF    r0x05, F
+0000C0 0F01           00177         ADDLW   0x01
+0000C2 E3??           00178         BNC     _00156_DS_
+0000C4                00179 _00155_DS_:
+0000C4 50??           00180         MOVF    r0x05, W
+0000C6 ????           00181         BANKSEL _kpDebounce_valorNovo_1_7
+0000C8 13??           00182         IORWF   _kpDebounce_valorNovo_1_7, F, B
+0000CA D???           00183         BRA     _00121_DS_
+0000CC                00184 _00111_DS_:
+                      00185 ;       .line   44; keypad.c    BitClr(valorNovo, (i * 2) + j);
+0000CC 50??           00186         MOVF    r0x03, W
+0000CE 24??           00187         ADDWF   r0x01, W
+0000D0 6E??           00188         MOVWF   r0x04
+0000D2 0E01           00189         MOVLW   0x01
+0000D4 6E??           00190         MOVWF   r0x05
+0000D6 50??           00191         MOVF    r0x04, W
+0000D8 E0??           00192         BZ      _00158_DS_
+0000DA 6CE8           00193         NEGF    WREG
+0000DC 90D8           00194         BCF     STATUS, 0
+0000DE                00195 _00159_DS_:
+0000DE 36??           00196         RLCF    r0x05, F
+0000E0 0F01           00197         ADDLW   0x01
+0000E2 E3??           00198         BNC     _00159_DS_
+0000E4                00199 _00158_DS_:
+0000E4 1C??           00200         COMF    r0x05, W
+0000E6 6E??           00201         MOVWF   r0x04
+0000E8 50??           00202         MOVF    r0x04, W
+0000EA ????           00203         BANKSEL _kpDebounce_valorNovo_1_7
+0000EC 17??           00204         ANDWF   _kpDebounce_valorNovo_1_7, F, B
+0000EE                00205 _00121_DS_:
+                      00206 ;       .line   40; keypad.c    for (j = 0; j < 2; j++) {
+0000EE 2A??           00207         INCF    r0x03, F
+0000F0 0E02           00208         MOVLW   0x02
+0000F2 5C??           00209         SUBWF   r0x03, W
+0000F4 A0D8           00210         BTFSS   STATUS, 0
+0000F6 D???           00211         BRA     _00120_DS_
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  5
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00212 ;       .line   35; keypad.c    for (i = 0; i < 4; i++) {
+0000F8 2A??           00213         INCF    r0x01, F
+0000FA 2A??           00214         INCF    r0x01, F
+0000FC 2A??           00215         INCF    r0x02, F
+0000FE 2A??           00216         INCF    r0x02, F
+000100 2A??           00217         INCF    r0x00, F
+000102 0E04           00218         MOVLW   0x04
+000104 5C??           00219         SUBWF   r0x00, W
+000106 A0D8           00220         BTFSS   STATUS, 0
+000108 D???           00221         BRA     _00122_DS_
+00010A ????           00222         BANKSEL _kpDebounce_valorAntigo_1_7
+                      00223 ;       .line   48; keypad.c    if (valorAntigo == valorNovo) {
+00010C 51??           00224         MOVF    _kpDebounce_valorAntigo_1_7, W, B
+00010E ????           00225         BANKSEL _kpDebounce_valorNovo_1_7
+000110 19??           00226         XORWF   _kpDebounce_valorNovo_1_7, W, B
+000112 E1??           00227         BNZ     _00116_DS_
+000114                00228 _00164_DS_:
+000114 ????           00229         BANKSEL _kpDebounce_tempo_1_7
+                      00230 ;       .line   49; keypad.c    tempo--;
+000116 07??           00231         DECF    _kpDebounce_tempo_1_7, F, B
+000118 D???           00232         BRA     _00117_DS_
+00011A                00233 _00116_DS_:
+                      00234 ;       .line   51; keypad.c    tempo = 10;
+00011A 0E0A           00235         MOVLW   0x0a
+00011C ????           00236         BANKSEL _kpDebounce_tempo_1_7
+00011E 6F??           00237         MOVWF   _kpDebounce_tempo_1_7, B
+                      00238 ;       .line   52; keypad.c    valorAntigo = valorNovo;
+000120 C??? F???      00239         MOVFF   _kpDebounce_valorNovo_1_7, _kpDebounce_valorAntigo_1_7
+000124                00240 _00117_DS_:
+000124 ????           00241         BANKSEL _kpDebounce_tempo_1_7
+                      00242 ;       .line   54; keypad.c    if (tempo == 0) {
+000126 51??           00243         MOVF    _kpDebounce_tempo_1_7, W, B
+000128 E1??           00244         BNZ     _00124_DS_
+                      00245 ;       .line   55; keypad.c    valor = valorAntigo;
+00012A C??? F???      00246         MOVFF   _kpDebounce_valorAntigo_1_7, _valor
+00012E                00247 _00124_DS_:
+00012E CFE4 F000      00248         MOVFF   PREINC1, r0x09
+000132 CFE4 F000      00249         MOVFF   PREINC1, r0x08
+000136 CFE4 F000      00250         MOVFF   PREINC1, r0x07
+00013A CFE4 F000      00251         MOVFF   PREINC1, r0x06
+00013E CFE4 F000      00252         MOVFF   PREINC1, r0x05
+000142 CFE4 F000      00253         MOVFF   PREINC1, r0x04
+000146 CFE4 F000      00254         MOVFF   PREINC1, r0x03
+00014A CFE4 F000      00255         MOVFF   PREINC1, r0x02
+00014E CFE4 F000      00256         MOVFF   PREINC1, r0x01
+000152 CFE4 F000      00257         MOVFF   PREINC1, r0x00
+000156 CFE4 FFD9      00258         MOVFF   PREINC1, FSR2L
+00015A 0012           00259         RETURN  
+                      00260 
+                      00261 ; ; Starting pCode block
+                      00262 S_keypad__kpRead        code
+000000                00263 _kpRead:
+                      00264 ;       .line   25; keypad.c    unsigned char kpRead(void) {
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  6
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000000 CFD9 FFE5      00265         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00266         MOVFF   FSR1L, FSR2L
+000008 ????           00267         BANKSEL _valor
+                      00268 ;       .line   26; keypad.c    return valor;
+00000A 51??           00269         MOVF    _valor, W, B
+00000C CFE4 FFD9      00270         MOVFF   PREINC1, FSR2L
+000010 0012           00271         RETURN  
+                      00272 
+                      00273 
+                      00274 
+                      00275 ; Statistics:
+                      00276 ; code size:      422 (0x01a6) bytes ( 0.32%)
+                      00277 ;                 211 (0x00d3) words
+                      00278 ; udata size:       1 (0x0001) bytes ( 0.08%)
+                      00279 ; access size:     10 (0x000a) bytes
+                      00280 
+                      00281 
+                      00282         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  7
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+STATUS                            00000FD8
+WREG                              00000FE8
+_00111_DS_                        000000CC
+_00116_DS_                        0000011A
+_00117_DS_                        00000124
+_00120_DS_                        0000005C
+_00121_DS_                        000000EE
+_00122_DS_                        00000036
+_00124_DS_                        0000012E
+_00149_DS_                        00000048
+_00150_DS_                        00000042
+_00151_DS_                        0000009C
+_00152_DS_                        00000084
+_00153_DS_                        00000090
+_00154_DS_                        0000008E
+_00155_DS_                        000000C4
+_00156_DS_                        000000BE
+_00158_DS_                        000000E4
+_00159_DS_                        000000DE
+_00164_DS_                        00000114
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+_kpDebounce                       00000000
+_kpDebounce_tempo_1_7             00000000
+_kpDebounce_valorAntigo_1_7       00000002
+_kpDebounce_valorNovo_1_7         00000001
+_kpInit                           00000000
+_kpRead                           00000000
+_valor                            00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+r0x04                             00000004
+r0x05                             00000005
+r0x06                             00000006
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+r0x07                             00000007
+r0x08                             00000008
+r0x09                             00000009
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

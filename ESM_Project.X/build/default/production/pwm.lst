@@ -1,0 +1,410 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009 
+                      00010 
+                      00011 ;--------------------------------------------------------
+                      00012 ; public variables in this module
+                      00013 ;--------------------------------------------------------
+  0000                00014         global  _pwmSet1
+  0000                00015         global  _pwmSet2
+  0000                00016         global  _pwmFrequency
+  0000                00017         global  _pwmInit
+                      00018 
+                      00019 ;--------------------------------------------------------
+                      00020 ; extern variables in this module
+                      00021 ;--------------------------------------------------------
+  0000                00022         extern  __mulint
+  0000                00023         extern  __divuint
+  0000                00024         extern  __divslong
+                      00025 
+                      00026 ;--------------------------------------------------------
+                      00027 ;       Equates to used internal registers
+                      00028 ;--------------------------------------------------------
+  00000FD8            00029 STATUS  equ     0xfd8
+  00000FE9            00030 FSR0L   equ     0xfe9
+  00000FE1            00031 FSR1L   equ     0xfe1
+  00000FD9            00032 FSR2L   equ     0xfd9
+  00000FEF            00033 INDF0   equ     0xfef
+  00000FE5            00034 POSTDEC1        equ     0xfe5
+  00000FE4            00035 PREINC1 equ     0xfe4
+  00000FDB            00036 PLUSW2  equ     0xfdb
+  00000FF3            00037 PRODL   equ     0xff3
+  00000FF4            00038 PRODH   equ     0xff4
+                      00039 
+                      00040 
+                      00041 ; Internal registers
+                      00042 .registers      udata_ovr       0x0000
+000000                00043 r0x00   res     1
+000001                00044 r0x01   res     1
+000002                00045 r0x02   res     1
+000003                00046 r0x03   res     1
+                      00047 
+                      00048 ;--------------------------------------------------------
+                      00049 ; global & static initialisations
+                      00050 ;--------------------------------------------------------
+                      00051 ; I code from now on!
+                      00052 ; ; Starting pCode block
+                      00053 S_pwm__pwmInit  code
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000000                00054 _pwmInit:
+                      00055 ;       .line   56; pwm.c       void pwmInit(void) {
+000000 CFD9 FFE5      00056         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00057         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00058         MOVFF   r0x00, POSTDEC1
+                      00059 ;       .line   57; pwm.c       BitClr(TRISC, 1); //configura os pinos correspondentes como saídas
+00000C EE0F F094      00060         LFSR    0x00, 0xf94
+000010 CFEF F000      00061         MOVFF   INDF0, r0x00
+000014 92??           00062         BCF     r0x00, 1
+000016 EE0F F094      00063         LFSR    0x00, 0xf94
+00001A C??? F???      00064         MOVFF   r0x00, INDF0
+                      00065 ;       .line   58; pwm.c       BitClr(TRISC, 2);
+00001E EE0F F094      00066         LFSR    0x00, 0xf94
+000022 CFEF F000      00067         MOVFF   INDF0, r0x00
+000026 94??           00068         BCF     r0x00, 2
+000028 EE0F F094      00069         LFSR    0x00, 0xf94
+00002C C??? F???      00070         MOVFF   r0x00, INDF0
+                      00071 ;       .line   60; pwm.c       T2CON |= 0b00000011; //configura o prescale do timer 2 para 1:16
+000030 EE0F F0CA      00072         LFSR    0x00, 0xfca
+000034 CFEF F000      00073         MOVFF   INDF0, r0x00
+000038 0E03           00074         MOVLW   0x03
+00003A 12??           00075         IORWF   r0x00, F
+00003C EE0F F0CA      00076         LFSR    0x00, 0xfca
+000040 C??? F???      00077         MOVFF   r0x00, INDF0
+                      00078 ;       .line   61; pwm.c       BitSet(T2CON, 2); //Liga o timer 2
+000044 EE0F F0CA      00079         LFSR    0x00, 0xfca
+000048 CFEF F000      00080         MOVFF   INDF0, r0x00
+00004C 84??           00081         BSF     r0x00, 2
+00004E EE0F F0CA      00082         LFSR    0x00, 0xfca
+000052 C??? F???      00083         MOVFF   r0x00, INDF0
+                      00084 ;       .line   64; pwm.c       CCP1CON |= 0b00001100; //configura CCP1 como um PWM
+000056 EE0F F0BD      00085         LFSR    0x00, 0xfbd
+00005A CFEF F000      00086         MOVFF   INDF0, r0x00
+00005E 0E0C           00087         MOVLW   0x0c
+000060 12??           00088         IORWF   r0x00, F
+000062 EE0F F0BD      00089         LFSR    0x00, 0xfbd
+000066 C??? F???      00090         MOVFF   r0x00, INDF0
+                      00091 ;       .line   65; pwm.c       CCP2CON |= 0b00001100; //configura CCP2 como um PWM
+00006A EE0F F0BA      00092         LFSR    0x00, 0xfba
+00006E CFEF F000      00093         MOVFF   INDF0, r0x00
+000072 0E0C           00094         MOVLW   0x0c
+000074 12??           00095         IORWF   r0x00, F
+000076 EE0F F0BA      00096         LFSR    0x00, 0xfba
+00007A C??? F???      00097         MOVFF   r0x00, INDF0
+00007E CFE4 F000      00098         MOVFF   PREINC1, r0x00
+000082 CFE4 FFD9      00099         MOVFF   PREINC1, FSR2L
+000086 0012           00100         RETURN  
+                      00101 
+                      00102 ; ; Starting pCode block
+                      00103 S_pwm__pwmFrequency     code
+000000                00104 _pwmFrequency:
+                      00105 ;       .line   50; pwm.c       void pwmFrequency(unsigned int freq) {
+000000 CFD9 FFE5      00106         MOVFF   FSR2L, POSTDEC1
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000004 CFE1 FFD9      00107         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00108         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00109         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00110         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00111         MOVFF   r0x03, POSTDEC1
+000018 0E02           00112         MOVLW   0x02
+00001A CFDB F000      00113         MOVFF   PLUSW2, r0x00
+00001E 0E03           00114         MOVLW   0x03
+000020 CFDB F000      00115         MOVFF   PLUSW2, r0x01
+                      00116 ;       .line   53; pwm.c       PR2 = (125000 / (freq)) - 1;
+000024 6A??           00117         CLRF    r0x02
+000026 6A??           00118         CLRF    r0x03
+000028 50??           00119         MOVF    r0x03, W
+00002A 6EE5           00120         MOVWF   POSTDEC1
+00002C 50??           00121         MOVF    r0x02, W
+00002E 6EE5           00122         MOVWF   POSTDEC1
+000030 50??           00123         MOVF    r0x01, W
+000032 6EE5           00124         MOVWF   POSTDEC1
+000034 50??           00125         MOVF    r0x00, W
+000036 6EE5           00126         MOVWF   POSTDEC1
+000038 0E00           00127         MOVLW   0x00
+00003A 6EE5           00128         MOVWF   POSTDEC1
+00003C 0E01           00129         MOVLW   0x01
+00003E 6EE5           00130         MOVWF   POSTDEC1
+000040 0EE8           00131         MOVLW   0xe8
+000042 6EE5           00132         MOVWF   POSTDEC1
+000044 0E48           00133         MOVLW   0x48
+000046 6EE5           00134         MOVWF   POSTDEC1
+000048 EC?? F0??      00135         CALL    __divslong
+00004C 6E??           00136         MOVWF   r0x00
+00004E CFF3 F000      00137         MOVFF   PRODL, r0x01
+000052 CFF4 F000      00138         MOVFF   PRODH, r0x02
+000056 CFE9 F000      00139         MOVFF   FSR0L, r0x03
+00005A 0E08           00140         MOVLW   0x08
+00005C 26E1           00141         ADDWF   FSR1L, F
+00005E 06??           00142         DECF    r0x00, F
+000060 EE0F F0CB      00143         LFSR    0x00, 0xfcb
+000064 C??? F???      00144         MOVFF   r0x00, INDF0
+000068 CFE4 F000      00145         MOVFF   PREINC1, r0x03
+00006C CFE4 F000      00146         MOVFF   PREINC1, r0x02
+000070 CFE4 F000      00147         MOVFF   PREINC1, r0x01
+000074 CFE4 F000      00148         MOVFF   PREINC1, r0x00
+000078 CFE4 FFD9      00149         MOVFF   PREINC1, FSR2L
+00007C 0012           00150         RETURN  
+                      00151 
+                      00152 ; ; Starting pCode block
+                      00153 S_pwm__pwmSet2  code
+000000                00154 _pwmSet2:
+                      00155 ;       .line   39; pwm.c       void pwmSet2(unsigned char porcento) {
+000000 CFD9 FFE5      00156         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00157         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00158         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00159         MOVFF   r0x01, POSTDEC1
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000010 C??? F???      00160         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00161         MOVFF   r0x03, POSTDEC1
+000018 0E02           00162         MOVLW   0x02
+00001A CFDB F000      00163         MOVFF   PLUSW2, r0x00
+                      00164 ;       .line   40; pwm.c       unsigned int val = ((unsigned int) porcento) *(PR2 + 1);
+00001E 6A??           00165         CLRF    r0x01
+000020 EE0F F0CB      00166         LFSR    0x00, 0xfcb
+000024 CFEF F000      00167         MOVFF   INDF0, r0x02
+000028 6A??           00168         CLRF    r0x03
+00002A 4A??           00169         INFSNZ  r0x02, F
+00002C 2A??           00170         INCF    r0x03, F
+00002E 50??           00171         MOVF    r0x03, W
+000030 6EE5           00172         MOVWF   POSTDEC1
+000032 50??           00173         MOVF    r0x02, W
+000034 6EE5           00174         MOVWF   POSTDEC1
+000036 50??           00175         MOVF    r0x01, W
+000038 6EE5           00176         MOVWF   POSTDEC1
+00003A 50??           00177         MOVF    r0x00, W
+00003C 6EE5           00178         MOVWF   POSTDEC1
+00003E EC?? F0??      00179         CALL    __mulint
+000042 6E??           00180         MOVWF   r0x00
+000044 CFF3 F000      00181         MOVFF   PRODL, r0x01
+000048 0E04           00182         MOVLW   0x04
+00004A 26E1           00183         ADDWF   FSR1L, F
+                      00184 ;       .line   41; pwm.c       val /= 25;
+00004C 0E00           00185         MOVLW   0x00
+00004E 6EE5           00186         MOVWF   POSTDEC1
+000050 0E19           00187         MOVLW   0x19
+000052 6EE5           00188         MOVWF   POSTDEC1
+000054 50??           00189         MOVF    r0x01, W
+000056 6EE5           00190         MOVWF   POSTDEC1
+000058 50??           00191         MOVF    r0x00, W
+00005A 6EE5           00192         MOVWF   POSTDEC1
+00005C EC?? F0??      00193         CALL    __divuint
+000060 6E??           00194         MOVWF   r0x00
+000062 CFF3 F000      00195         MOVFF   PRODL, r0x01
+000066 0E04           00196         MOVLW   0x04
+000068 26E1           00197         ADDWF   FSR1L, F
+                      00198 ;       .line   43; pwm.c       val &= 0x03ff;
+00006A 0E03           00199         MOVLW   0x03
+00006C 16??           00200         ANDWF   r0x01, F
+                      00201 ;       .line   45; pwm.c       CCPR2L = val >> 2;
+00006E 90D8           00202         BCF     STATUS, 0
+000070 30??           00203         RRCF    r0x01, W
+000072 6E??           00204         MOVWF   r0x03
+000074 30??           00205         RRCF    r0x00, W
+000076 6E??           00206         MOVWF   r0x02
+000078 90D8           00207         BCF     STATUS, 0
+00007A 32??           00208         RRCF    r0x03, F
+00007C 32??           00209         RRCF    r0x02, F
+00007E EE0F F0BB      00210         LFSR    0x00, 0xfbb
+000082 C??? F???      00211         MOVFF   r0x02, INDF0
+                      00212 ;       .line   47; pwm.c       CCP2CON |= (val & 0x0003) << 4;
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  5
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000086 EE0F F0BA      00213         LFSR    0x00, 0xfba
+00008A CFEF F000      00214         MOVFF   INDF0, r0x02
+00008E 0E03           00215         MOVLW   0x03
+000090 16??           00216         ANDWF   r0x00, F
+000092 6A??           00217         CLRF    r0x01
+000094 38??           00218         SWAPF   r0x00, W
+000096 0BF0           00219         ANDLW   0xf0
+000098 6E??           00220         MOVWF   r0x01
+00009A 50??           00221         MOVF    r0x01, W
+00009C 12??           00222         IORWF   r0x02, F
+00009E EE0F F0BA      00223         LFSR    0x00, 0xfba
+0000A2 C??? F???      00224         MOVFF   r0x02, INDF0
+0000A6 CFE4 F000      00225         MOVFF   PREINC1, r0x03
+0000AA CFE4 F000      00226         MOVFF   PREINC1, r0x02
+0000AE CFE4 F000      00227         MOVFF   PREINC1, r0x01
+0000B2 CFE4 F000      00228         MOVFF   PREINC1, r0x00
+0000B6 CFE4 FFD9      00229         MOVFF   PREINC1, FSR2L
+0000BA 0012           00230         RETURN  
+                      00231 
+                      00232 ; ; Starting pCode block
+                      00233 S_pwm__pwmSet1  code
+000000                00234 _pwmSet1:
+                      00235 ;       .line   23; pwm.c       void pwmSet1(unsigned char porcento) {
+000000 CFD9 FFE5      00236         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00237         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00238         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00239         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00240         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00241         MOVFF   r0x03, POSTDEC1
+000018 0E02           00242         MOVLW   0x02
+00001A CFDB F000      00243         MOVFF   PLUSW2, r0x00
+                      00244 ;       .line   29; pwm.c       unsigned int val = ((unsigned int) porcento) *(PR2 + 1);
+00001E 6A??           00245         CLRF    r0x01
+000020 EE0F F0CB      00246         LFSR    0x00, 0xfcb
+000024 CFEF F000      00247         MOVFF   INDF0, r0x02
+000028 6A??           00248         CLRF    r0x03
+00002A 4A??           00249         INFSNZ  r0x02, F
+00002C 2A??           00250         INCF    r0x03, F
+00002E 50??           00251         MOVF    r0x03, W
+000030 6EE5           00252         MOVWF   POSTDEC1
+000032 50??           00253         MOVF    r0x02, W
+000034 6EE5           00254         MOVWF   POSTDEC1
+000036 50??           00255         MOVF    r0x01, W
+000038 6EE5           00256         MOVWF   POSTDEC1
+00003A 50??           00257         MOVF    r0x00, W
+00003C 6EE5           00258         MOVWF   POSTDEC1
+00003E EC?? F0??      00259         CALL    __mulint
+000042 6E??           00260         MOVWF   r0x00
+000044 CFF3 F000      00261         MOVFF   PRODL, r0x01
+000048 0E04           00262         MOVLW   0x04
+00004A 26E1           00263         ADDWF   FSR1L, F
+                      00264 ;       .line   30; pwm.c       val = val / 25;
+00004C 0E00           00265         MOVLW   0x00
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  6
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00004E 6EE5           00266         MOVWF   POSTDEC1
+000050 0E19           00267         MOVLW   0x19
+000052 6EE5           00268         MOVWF   POSTDEC1
+000054 50??           00269         MOVF    r0x01, W
+000056 6EE5           00270         MOVWF   POSTDEC1
+000058 50??           00271         MOVF    r0x00, W
+00005A 6EE5           00272         MOVWF   POSTDEC1
+00005C EC?? F0??      00273         CALL    __divuint
+000060 6E??           00274         MOVWF   r0x00
+000062 CFF3 F000      00275         MOVFF   PRODL, r0x01
+000066 0E04           00276         MOVLW   0x04
+000068 26E1           00277         ADDWF   FSR1L, F
+                      00278 ;       .line   32; pwm.c       val &= 0x03ff;
+00006A 0E03           00279         MOVLW   0x03
+00006C 16??           00280         ANDWF   r0x01, F
+                      00281 ;       .line   34; pwm.c       CCPR1L = val >> 2;
+00006E 90D8           00282         BCF     STATUS, 0
+000070 30??           00283         RRCF    r0x01, W
+000072 6E??           00284         MOVWF   r0x03
+000074 30??           00285         RRCF    r0x00, W
+000076 6E??           00286         MOVWF   r0x02
+000078 90D8           00287         BCF     STATUS, 0
+00007A 32??           00288         RRCF    r0x03, F
+00007C 32??           00289         RRCF    r0x02, F
+00007E EE0F F0BE      00290         LFSR    0x00, 0xfbe
+000082 C??? F???      00291         MOVFF   r0x02, INDF0
+                      00292 ;       .line   36; pwm.c       CCP1CON |= (val & 0x0003) << 4;
+000086 EE0F F0BD      00293         LFSR    0x00, 0xfbd
+00008A CFEF F000      00294         MOVFF   INDF0, r0x02
+00008E 0E03           00295         MOVLW   0x03
+000090 16??           00296         ANDWF   r0x00, F
+000092 6A??           00297         CLRF    r0x01
+000094 38??           00298         SWAPF   r0x00, W
+000096 0BF0           00299         ANDLW   0xf0
+000098 6E??           00300         MOVWF   r0x01
+00009A 50??           00301         MOVF    r0x01, W
+00009C 12??           00302         IORWF   r0x02, F
+00009E EE0F F0BD      00303         LFSR    0x00, 0xfbd
+0000A2 C??? F???      00304         MOVFF   r0x02, INDF0
+0000A6 CFE4 F000      00305         MOVFF   PREINC1, r0x03
+0000AA CFE4 F000      00306         MOVFF   PREINC1, r0x02
+0000AE CFE4 F000      00307         MOVFF   PREINC1, r0x01
+0000B2 CFE4 F000      00308         MOVFF   PREINC1, r0x00
+0000B6 CFE4 FFD9      00309         MOVFF   PREINC1, FSR2L
+0000BA 0012           00310         RETURN  
+                      00311 
+                      00312 
+                      00313 
+                      00314 ; Statistics:
+                      00315 ; code size:      638 (0x027e) bytes ( 0.49%)
+                      00316 ;                 319 (0x013f) words
+                      00317 ; udata size:       0 (0x0000) bytes ( 0.00%)
+                      00318 ; access size:      4 (0x0004) bytes
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  7
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00319 
+                      00320 
+                      00321         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR0L                             00000FE9
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+PRODH                             00000FF4
+PRODL                             00000FF3
+STATUS                            00000FD8
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+__divslong                        00000000
+__divuint                         00000000
+__mulint                          00000000
+_pwmFrequency                     00000000
+_pwmInit                          00000000
+_pwmSet1                          00000000
+_pwmSet2                          00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

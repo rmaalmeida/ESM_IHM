@@ -1,0 +1,159 @@
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.6.0 #9615 (MINGW64)
+                      00004 ;--------------------------------------------------------
+                      00005 ; PIC16 port for the Microchip 16-bit core micros
+                      00006 ;--------------------------------------------------------
+                      00007         list    p=18f4520
+                      00008         radix   dec
+                      00009         CONFIG  MCLRE=ON
+                      00010         CONFIG  OSC=HS
+                      00011         CONFIG  WDT=OFF
+                      00012         CONFIG  LVP=OFF
+                      00013         CONFIG  DEBUG=OFF
+                      00014         CONFIG  WDTPS=1
+                      00015 
+                      00016 
+                      00017 ;--------------------------------------------------------
+                      00018 ; public variables in this module
+                      00019 ;--------------------------------------------------------
+  0000                00020         global  _main
+                      00021 
+                      00022 ;--------------------------------------------------------
+                      00023 ; extern variables in this module
+                      00024 ;--------------------------------------------------------
+  0000                00025         extern  _timerWait
+  0000                00026         extern  _timerReset
+  0000                00027         extern  _timerInit
+  0000                00028         extern  _lcdInit
+  0000                00029         extern  _kpDebounce
+  0000                00030         extern  _kpInit
+  0000                00031         extern  _eventInit
+  0000                00032         extern  _varInit
+  0000                00033         extern  _getTime
+  0000                00034         extern  _smLoop
+  0000                00035         extern  _outputInit
+                      00036 
+                      00037 ;--------------------------------------------------------
+                      00038 ;       Equates to used internal registers
+                      00039 ;--------------------------------------------------------
+  00000FE6            00040 POSTINC1        equ     0xfe6
+  00000FE5            00041 POSTDEC1        equ     0xfe5
+  00000FF3            00042 PRODL   equ     0xff3
+                      00043 
+                      00044 
+                      00045 ; Internal registers
+                      00046 .registers      udata_ovr       0x0000
+000000                00047 r0x00   res     1
+000001                00048 r0x01   res     1
+                      00049 
+                      00050 ;--------------------------------------------------------
+                      00051 ; interrupt vector
+                      00052 ;--------------------------------------------------------
+                      00053 
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00054 ;--------------------------------------------------------
+                      00055 ; global & static initialisations
+                      00056 ;--------------------------------------------------------
+                      00057 ; I code from now on!
+                      00058 ; ; Starting pCode block
+                      00059 S_main__main    code
+000000                00060 _main:
+                      00061 ;       .line   18; main.c      kpInit();
+000000 EC?? F0??      00062         CALL    _kpInit
+                      00063 ;       .line   19; main.c      lcdInit();
+000004 EC?? F0??      00064         CALL    _lcdInit
+                      00065 ;       .line   20; main.c      timerInit();
+000008 EC?? F0??      00066         CALL    _timerInit
+                      00067 ;       .line   21; main.c      varInit();
+00000C EC?? F0??      00068         CALL    _varInit
+                      00069 ;       .line   22; main.c      eventInit();
+000010 EC?? F0??      00070         CALL    _eventInit
+                      00071 ;       .line   23; main.c      outputInit();
+000014 EC?? F0??      00072         CALL    _outputInit
+000018                00073 _00106_DS_:
+                      00074 ;       .line   27; main.c      timerReset(getTime());
+000018 EC?? F0??      00075         CALL    _getTime
+00001C 6E??           00076         MOVWF   r0x00
+00001E CFF3 F000      00077         MOVFF   PRODL, r0x01
+000022 50??           00078         MOVF    r0x01, W
+000024 6EE5           00079         MOVWF   POSTDEC1
+000026 50??           00080         MOVF    r0x00, W
+000028 6EE5           00081         MOVWF   POSTDEC1
+00002A EC?? F0??      00082         CALL    _timerReset
+00002E 52E6           00083         MOVF    POSTINC1, F
+000030 52E6           00084         MOVF    POSTINC1, F
+                      00085 ;       .line   31; main.c      kpDebounce();
+000032 EC?? F0??      00086         CALL    _kpDebounce
+                      00087 ;       .line   34; main.c      smLoop();
+000036 EC?? F0??      00088         CALL    _smLoop
+                      00089 ;       .line   36; main.c      timerWait();
+00003A EC?? F0??      00090         CALL    _timerWait
+00003E D???           00091         BRA     _00106_DS_
+000040 0012           00092         RETURN  
+                      00093 
+                      00094 
+                      00095 
+                      00096 ; Statistics:
+                      00097 ; code size:       66 (0x0042) bytes ( 0.05%)
+                      00098 ;                  33 (0x0021) words
+                      00099 ; udata size:       0 (0x0000) bytes ( 0.00%)
+                      00100 ; access size:      2 (0x0002) bytes
+                      00101 
+                      00102 
+                      00103         end
+gpasm-1.4.2 #1169 (Jan  2 2016) build/default   6-18-2017  23:14:09         PAGE  3
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+POSTDEC1                          00000FE5
+POSTINC1                          00000FE6
+PRODL                             00000FF3
+_00106_DS_                        00000018
+__18F4520                         00000001
+__ACC_RAM_LOW_END                 0000007F
+__ACC_RAM_LOW_START               00000000
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__CONFIG_END                      0030000D
+__CONFIG_START                    00300000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__IDLOCS_END                      00200007
+__IDLOCS_START                    00200000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+_eventInit                        00000000
+_getTime                          00000000
+_kpDebounce                       00000000
+_kpInit                           00000000
+_lcdInit                          00000000
+_main                             00000000
+_outputInit                       00000000
+_smLoop                           00000000
+_timerInit                        00000000
+_timerReset                       00000000
+_timerWait                        00000000
+_varInit                          00000000
+r0x00                             00000000
+r0x01                             00000001
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+
